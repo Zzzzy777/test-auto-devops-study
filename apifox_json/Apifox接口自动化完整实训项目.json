@@ -1,0 +1,1796 @@
+{
+  "apifoxProject": "1.0.0",
+  "$schema": {
+    "app": "apifox",
+    "type": "project",
+    "version": "1.2.0"
+  },
+  "info": {
+    "name": "批量执行接口",
+    "description": "",
+    "mockRule": {
+      "rules": [],
+      "enableSystemRule": true
+    }
+  },
+  "projectSetting": {
+    "id": "8745171",
+    "auth": {},
+    "securityScheme": {},
+    "gateway": [],
+    "language": "zh-CN",
+    "apiStatuses": [
+      "developing",
+      "testing",
+      "released",
+      "deprecated"
+    ],
+    "mockSettings": {},
+    "preProcessors": [],
+    "postProcessors": [],
+    "advancedSettings": {
+      "allowAutomationWriteAutomationCreatedSprintBranch": true,
+      "enableJsonc": false,
+      "enableBigint": false,
+      "responseValidate": true,
+      "enableTestScenarioSetting": false,
+      "enableYAPICompatScript": false,
+      "isDefaultUrlEncoding": 2,
+      "publishedDocUrlRules": {
+        "defaultRule": "RESOURCE_KEY_ONLY",
+        "resourceKeyStandard": "NEW"
+      }
+    },
+    "initialDisabledMockIds": [],
+    "servers": [
+      {
+        "id": "default",
+        "name": "默认服务",
+        "moduleId": 8360782
+      }
+    ],
+    "cloudMock": {
+      "enable": false,
+      "security": "free",
+      "tokenKey": "apifoxToken",
+      "isCreatedAutomaticallyByDefaultConfigFromAdmin": true
+    }
+  },
+  "apiCollection": [
+    {
+      "name": "根目录",
+      "id": 93049976,
+      "auth": {},
+      "securityScheme": {},
+      "parentId": 0,
+      "serverId": "",
+      "description": "",
+      "identityPattern": {
+        "httpApi": {
+          "type": "methodAndPath",
+          "bodyType": "",
+          "fields": []
+        }
+      },
+      "shareSettings": {},
+      "visibility": "SHARED",
+      "moduleId": 8360782,
+      "preProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "postProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "inheritPostProcessors": {},
+      "inheritPreProcessors": {},
+      "items": [
+        {
+          "name": "POST 登录接口",
+          "api": {
+            "id": "499404680",
+            "method": "post",
+            "path": "/post",
+            "parameters": {},
+            "auth": {},
+            "securityScheme": {},
+            "commonParameters": {
+              "query": [],
+              "body": [],
+              "cookie": [],
+              "header": []
+            },
+            "responses": [
+              {
+                "id": "188772448",
+                "code": 200,
+                "name": "成功",
+                "headers": [],
+                "jsonSchema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "itemSchema": {},
+                "description": "",
+                "contentType": "json",
+                "mediaType": ""
+              }
+            ],
+            "responseExamples": [
+              {
+                "name": "成功",
+                "data": "{\n  \"args\": {}, \n  \"data\": \" {\\\"username\\\":\\\"{{username}}\\\",\\\"password\\\":\\\"{{password}}\\\"}\", \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n    \"Accept-Encoding\": \"gzip, deflate, br\", \n    \"Content-Length\": \"54\", \n    \"Content-Type\": \"application/json\", \n    \"Host\": \"httpbin.ceshiren.com\", \n    \"Sw8\": \"1-YzIxZGYwN2UtYjY1YS00Yzg5LThlNjUtM2E4N2U4NzI5ZjZi-NDdiNjkzOTYtZTJkZC00YTkyLTg0ZTUtMTM2MGVlYWM1Mjgy-1-QVBJU0lYLUJK-QVBJU0lYLUJK-L3Bvc3Q=-dXBzdHJlYW0gc2VydmljZQ==\", \n    \"User-Agent\": \"Apifox/1.0.0 (https://apifox.com)\", \n    \"X-Forwarded-Host\": \"httpbin.ceshiren.com\"\n  }, \n  \"json\": {\n    \"password\": \"{{password}}\", \n    \"username\": \"{{username}}\"\n  }, \n  \"origin\": \"223.104.79.231, 182.92.156.22\", \n  \"url\": \"https://httpbin.ceshiren.com/post\"\n}\n",
+                "responseId": "188772448"
+              }
+            ],
+            "requestBody": {
+              "type": "application/json",
+              "parameters": [],
+              "jsonSchema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true,
+              "mediaType": "",
+              "examples": [
+                {
+                  "mediaType": "application/json",
+                  "value": " {\"username\":\"{{username}}\",\"password\":\"{{password}}\"}"
+                }
+              ],
+              "oasExtensions": ""
+            },
+            "description": "",
+            "tags": [],
+            "status": "developing",
+            "serverId": "",
+            "operationId": "",
+            "sourceUrl": "",
+            "ordering": 10,
+            "cases": [],
+            "mocks": [],
+            "customApiFields": "{}",
+            "advancedSettings": {
+              "disabledSystemHeaders": {}
+            },
+            "mockScript": {},
+            "codeSamples": [],
+            "commonResponseStatus": {},
+            "responseChildren": [],
+            "visibility": "INHERITED",
+            "moduleId": 8360782,
+            "oasExtensions": "",
+            "type": "http",
+            "preProcessors": [],
+            "postProcessors": [
+              {
+                "type": "customScript",
+                "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});\r\n\r\n// 新增账号逻辑校验，区分admin正确、wrong错误\r\nlet reqData = JSON.parse(pm.request.body.raw);\r\nif(reqData.username === \"admin\" && reqData.password === \"123456\"){\r\n    pm.test(\"账号密码正确\",function(){\r\n        pm.expect(true).eql(true);\r\n    })\r\n}else{\r\n    pm.test(\"账号密码错误，预期失败\",function(){\r\n        pm.expect(false).eql(true); // 错误账号直接断言失败\r\n    })\r\n}\r\npm.environment.set(\"token\", \"mock-token-001\");",
+                "defaultEnable": false,
+                "enable": true,
+                "id": "8LXJij8I2XD1P7rylyIxl"
+              }
+            ],
+            "inheritPostProcessors": {},
+            "inheritPreProcessors": {}
+          }
+        },
+        {
+          "name": "GET 用户列表(需要token鉴权)",
+          "api": {
+            "id": "499405516",
+            "method": "get",
+            "path": "/headers",
+            "parameters": {
+              "header": [
+                {
+                  "required": false,
+                  "description": "",
+                  "type": "string",
+                  "id": "3q08cZYklg",
+                  "example": "Bearer {{token}}",
+                  "enable": true,
+                  "name": "Authorization"
+                }
+              ]
+            },
+            "auth": {},
+            "securityScheme": {},
+            "commonParameters": {
+              "query": [],
+              "body": [],
+              "cookie": [],
+              "header": []
+            },
+            "responses": [
+              {
+                "id": "123719925",
+                "code": 200,
+                "name": "成功",
+                "headers": [],
+                "jsonSchema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "itemSchema": {},
+                "description": "",
+                "contentType": "json",
+                "mediaType": ""
+              }
+            ],
+            "responseExamples": [],
+            "requestBody": {
+              "type": "none",
+              "parameters": [],
+              "required": true,
+              "mediaType": "",
+              "examples": [],
+              "oasExtensions": ""
+            },
+            "description": "",
+            "tags": [],
+            "status": "developing",
+            "serverId": "",
+            "operationId": "",
+            "sourceUrl": "",
+            "ordering": 20,
+            "cases": [],
+            "mocks": [],
+            "customApiFields": "{}",
+            "advancedSettings": {
+              "disabledSystemHeaders": {}
+            },
+            "mockScript": {},
+            "codeSamples": [],
+            "commonResponseStatus": {},
+            "responseChildren": [],
+            "visibility": "INHERITED",
+            "moduleId": 8360782,
+            "oasExtensions": "",
+            "type": "http",
+            "preProcessors": [],
+            "postProcessors": [
+              {
+                "type": "customScript",
+                "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含headers字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                "defaultEnable": false,
+                "enable": true,
+                "id": "mZz-flSdGEvS3xyrCsX_1"
+              }
+            ],
+            "inheritPostProcessors": {},
+            "inheritPreProcessors": {}
+          }
+        },
+        {
+          "name": "POST 新增用户(需要token鉴权)",
+          "api": {
+            "id": "499408636",
+            "method": "post",
+            "path": "/post",
+            "parameters": {
+              "header": [
+                {
+                  "required": false,
+                  "description": "",
+                  "type": "string",
+                  "id": "fzI4Zo6LT4",
+                  "example": "Bearer {{token}}",
+                  "enable": true,
+                  "name": "Authorization"
+                }
+              ]
+            },
+            "auth": {},
+            "securityScheme": {},
+            "commonParameters": {
+              "query": [],
+              "body": [],
+              "cookie": [],
+              "header": []
+            },
+            "responses": [
+              {
+                "id": "125500942",
+                "code": 200,
+                "name": "成功",
+                "headers": [],
+                "jsonSchema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "itemSchema": {},
+                "description": "",
+                "contentType": "json",
+                "mediaType": ""
+              }
+            ],
+            "responseExamples": [
+              {
+                "name": "成功",
+                "data": "{\n  \"args\": {}, \n  \"data\": \"{\\\"nickname\\\":\\\"\\u6d4b\\u8bd5\\u7528\\u6237\\\"}\", \n  \"files\": {}, \n  \"form\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n    \"Accept-Encoding\": \"gzip, deflate, br\", \n    \"Authorization\": \"Bearer mock-token-001\", \n    \"Content-Length\": \"27\", \n    \"Content-Type\": \"application/json\", \n    \"Host\": \"httpbin.ceshiren.com\", \n    \"Sw8\": \"1-YzI1YWRlYmMtMzc0OC00YjNmLWFhNTUtYzRmZjQ5NWNmM2Nm-NGI4NTBjOWItNzdjMy00MzM0LWEyZWMtNmVjZDhkZGI1MmY4-1-QVBJU0lYLUJK-QVBJU0lYLUJK-L3Bvc3Q=-dXBzdHJlYW0gc2VydmljZQ==\", \n    \"User-Agent\": \"Apifox/1.0.0 (https://apifox.com)\", \n    \"X-Forwarded-Host\": \"httpbin.ceshiren.com\"\n  }, \n  \"json\": {\n    \"nickname\": \"\\u6d4b\\u8bd5\\u7528\\u6237\"\n  }, \n  \"origin\": \"223.104.79.231, 182.92.156.22\", \n  \"url\": \"https://httpbin.ceshiren.com/post\"\n}\n",
+                "responseId": "125500942"
+              }
+            ],
+            "requestBody": {
+              "type": "application/json",
+              "parameters": [],
+              "jsonSchema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true,
+              "mediaType": "",
+              "examples": [
+                {
+                  "mediaType": "application/json",
+                  "value": "{\"nickname\":\"测试用户\"}"
+                }
+              ],
+              "oasExtensions": ""
+            },
+            "description": "",
+            "tags": [],
+            "status": "developing",
+            "serverId": "",
+            "operationId": "",
+            "sourceUrl": "",
+            "ordering": 30,
+            "cases": [],
+            "mocks": [],
+            "customApiFields": "{}",
+            "advancedSettings": {
+              "disabledSystemHeaders": {}
+            },
+            "mockScript": {},
+            "codeSamples": [],
+            "commonResponseStatus": {},
+            "responseChildren": [],
+            "visibility": "INHERITED",
+            "moduleId": 8360782,
+            "oasExtensions": "",
+            "type": "http",
+            "preProcessors": [],
+            "postProcessors": [
+              {
+                "type": "customScript",
+                "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});",
+                "defaultEnable": false,
+                "enable": true,
+                "id": "j8F2zGZDHSBtFFY19tvDP"
+              }
+            ],
+            "inheritPostProcessors": {},
+            "inheritPreProcessors": {}
+          }
+        },
+        {
+          "name": "PUT 修改用户",
+          "api": {
+            "id": "499444008",
+            "method": "put",
+            "path": "https://httpbin.ceshiren.com/put",
+            "parameters": {
+              "header": [
+                {
+                  "required": false,
+                  "description": "",
+                  "type": "string",
+                  "id": "JBCLqJpXyv",
+                  "example": "Bearer {{token}}",
+                  "enable": true,
+                  "name": "Authorization"
+                }
+              ]
+            },
+            "auth": {},
+            "securityScheme": {},
+            "commonParameters": {
+              "query": [],
+              "body": [],
+              "cookie": [],
+              "header": []
+            },
+            "responses": [
+              {
+                "id": "186647439",
+                "code": 200,
+                "name": "成功",
+                "headers": [],
+                "jsonSchema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "itemSchema": {},
+                "description": "",
+                "contentType": "json",
+                "mediaType": ""
+              }
+            ],
+            "responseExamples": [],
+            "requestBody": {
+              "type": "application/json",
+              "parameters": [],
+              "jsonSchema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true,
+              "mediaType": "",
+              "examples": [
+                {
+                  "mediaType": "application/json",
+                  "value": "{\r\n  \"id\": \"{{userId}}\",\r\n  \"username\": \"修改后的测试账号\"\r\n}"
+                }
+              ],
+              "oasExtensions": ""
+            },
+            "description": "",
+            "tags": [],
+            "status": "developing",
+            "serverId": "",
+            "operationId": "",
+            "sourceUrl": "",
+            "ordering": 40,
+            "cases": [],
+            "mocks": [],
+            "customApiFields": "{}",
+            "advancedSettings": {
+              "disabledSystemHeaders": {}
+            },
+            "mockScript": {},
+            "codeSamples": [],
+            "commonResponseStatus": {},
+            "responseChildren": [],
+            "visibility": "INHERITED",
+            "moduleId": 8360782,
+            "oasExtensions": "",
+            "type": "http",
+            "preProcessors": [],
+            "postProcessors": [
+              {
+                "type": "customScript",
+                "data": "// 校验HTTP状态码\r\nassert.equal(response.code, 200, \"修改用户接口响应码必须为200\");\r\n// 获取返回json数据\r\nlet resData = response.json.json;\r\n// 校验传入的用户ID匹配\r\nassert.equal(resData.id, userId, \"修改接口传入用户ID与新增用户ID不一致\");\r\n// 校验用户名修改成功\r\nassert.equal(resData.username, \"修改后的测试账号\", \"用户名称未修改成功\");",
+                "defaultEnable": false,
+                "enable": true,
+                "id": "ePV3JUqpGKXtl33lgjNd8"
+              }
+            ],
+            "inheritPostProcessors": {},
+            "inheritPreProcessors": {}
+          }
+        },
+        {
+          "name": "DELETE 删除用户",
+          "api": {
+            "id": "499445048",
+            "method": "delete",
+            "path": "https://httpbin.ceshiren.com/delete",
+            "parameters": {},
+            "auth": {},
+            "securityScheme": {},
+            "commonParameters": {
+              "query": [],
+              "body": [],
+              "cookie": [],
+              "header": []
+            },
+            "responses": [
+              {
+                "id": "199425826",
+                "code": 200,
+                "name": "成功",
+                "headers": [],
+                "jsonSchema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "itemSchema": {},
+                "description": "",
+                "contentType": "json",
+                "mediaType": ""
+              }
+            ],
+            "responseExamples": [],
+            "requestBody": {
+              "type": "application/json",
+              "parameters": [],
+              "jsonSchema": {
+                "type": "object",
+                "properties": {}
+              },
+              "required": true,
+              "mediaType": "",
+              "examples": [
+                {
+                  "mediaType": "application/json",
+                  "value": "{\r\n  \"id\": \"{{userId}}\"\r\n}"
+                }
+              ],
+              "oasExtensions": ""
+            },
+            "description": "",
+            "tags": [],
+            "status": "developing",
+            "serverId": "",
+            "operationId": "",
+            "sourceUrl": "",
+            "ordering": 50,
+            "cases": [],
+            "mocks": [],
+            "customApiFields": "{}",
+            "advancedSettings": {
+              "disabledSystemHeaders": {}
+            },
+            "mockScript": {},
+            "codeSamples": [],
+            "commonResponseStatus": {},
+            "responseChildren": [],
+            "visibility": "INHERITED",
+            "moduleId": 8360782,
+            "oasExtensions": "",
+            "type": "http",
+            "preProcessors": [],
+            "postProcessors": [
+              {
+                "type": "customScript",
+                "data": "// 校验删除接口返回200\r\nassert.equal(response.code, 200, \"删除用户接口响应码必须为200\");\r\nlet resData = response.json.json;\r\nassert.equal(resData.id, userId, \"删除接口用户ID匹配失败\");",
+                "defaultEnable": false,
+                "enable": true,
+                "id": "p3ypSsC22h9AFu-PXkq9_"
+              }
+            ],
+            "inheritPostProcessors": {},
+            "inheritPreProcessors": {}
+          }
+        }
+      ]
+    }
+  ],
+  "socketCollection": [],
+  "docCollection": [],
+  "webSocketCollection": [],
+  "socketIOCollection": [],
+  "mcpClientCollection": [],
+  "responseCollection": [
+    {
+      "_databaseId": 9813903,
+      "updatedAt": "2026-08-10T07:40:07.000Z",
+      "id": 9813903,
+      "name": "根目录",
+      "type": "root",
+      "children": [],
+      "moduleId": 8360782,
+      "parentId": 0,
+      "ordering": [],
+      "items": []
+    }
+  ],
+  "schemaCollection": [
+    {
+      "id": 20816065,
+      "name": "根目录",
+      "visibility": "SHARED",
+      "moduleId": 8360782,
+      "items": [],
+      "ordering": []
+    }
+  ],
+  "securitySchemeCollection": [
+    {
+      "id": 5622595,
+      "moduleId": 8360782,
+      "name": "根目录",
+      "items": [],
+      "ordering": []
+    }
+  ],
+  "oasComponentCollection": [],
+  "requestCollection": [
+    {
+      "name": "根目录",
+      "children": [],
+      "ordering": [
+        "requestFolder.9404074"
+      ],
+      "items": []
+    }
+  ],
+  "apiTestCaseCollection": [
+    {
+      "id": 0,
+      "name": "Root",
+      "children": [],
+      "items": [
+        {
+          "steps": [
+            {
+              "name": "POST 登录接口",
+              "number": 1,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499404680,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402406560,
+                "name": "",
+                "method": "post",
+                "path": "/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "188772448",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": " {\"username\":\"{{username}}\",\"password\":\"{{password}}\"}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 1
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "8LXJij8I2XD1P7rylyIxl": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});\r\n\r\n// 新增账号逻辑校验，区分admin正确、wrong错误\r\nlet reqData = JSON.parse(pm.request.body.raw);\r\nif(reqData.username === \"admin\" && reqData.password === \"123456\"){\r\n    pm.test(\"账号密码正确\",function(){\r\n        pm.expect(true).eql(true);\r\n    })\r\n}else{\r\n    pm.test(\"账号密码错误，预期失败\",function(){\r\n        pm.expect(false).eql(true); // 错误账号直接断言失败\r\n    })\r\n}\r\npm.environment.set(\"token\", \"mock-token-001\");",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "8LXJij8I2XD1P7rylyIxl",
+                    "targetName": "POST 登录接口",
+                    "targetId": 499404680,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499404680
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "number": 2,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499405516,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402406559,
+                "name": "",
+                "method": "get",
+                "path": "/headers",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "3q08cZYklg",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "123719925",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "none",
+                  "data": "",
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "mZz-flSdGEvS3xyrCsX_1": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含headers字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "mZz-flSdGEvS3xyrCsX_1",
+                    "targetName": "GET 用户列表(需要token鉴权)",
+                    "targetId": 499405516,
+                    "targetType": "apiDetail",
+                    "apiMethod": "get",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499405516
+              }
+            },
+            {
+              "name": "POST 新增用户(需要token鉴权)",
+              "number": 3,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499408636,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402406558,
+                "name": "",
+                "method": "post",
+                "path": "/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "fzI4Zo6LT4",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "125500942",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\"nickname\":\"测试用户\"}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "j8F2zGZDHSBtFFY19tvDP": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "j8F2zGZDHSBtFFY19tvDP",
+                    "targetName": "POST 新增用户(需要token鉴权)",
+                    "targetId": 499408636,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499408636
+              }
+            }
+          ],
+          "id": 8612065,
+          "name": "多数据集数据驱动自动化测试",
+          "tags": [],
+          "options": {
+            "environmentId": 48129689,
+            "useDataSetId": 4319810,
+            "iterationCount": 1,
+            "threadCount": 1,
+            "runnerId": 0,
+            "onError": "ignore",
+            "delayItem": 0,
+            "saveReportDetail": "all",
+            "saveVariables": true,
+            "readGlobalCookie": false,
+            "saveGlobalCookie": false
+          },
+          "priority": 2,
+          "ordering": 10,
+          "description": "",
+          "preProcessors": [],
+          "postProcessors": [],
+          "children": [],
+          "performanceTestOptions": {},
+          "apiTestDataSets": [
+            {
+              "id": 4319810,
+              "name": "数据 1",
+              "relatedId": 8612065,
+              "apiTestDataList": [
+                {
+                  "id": 1475451,
+                  "data": "username,password,desc\nadmin,123456,正确账号密码\nadmin,,密码为空\nwrong,123456,错误账号\nadmin,654321,错误密码\n",
+                  "dataSetId": 4319810,
+                  "relatedId": 8612065,
+                  "relatedType": 0,
+                  "environmentId": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "steps": [
+            {
+              "name": "POST 登录接口",
+              "number": 1,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499404680,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429891,
+                "name": "",
+                "method": "post",
+                "path": "/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "188772448",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": " {\"username\":\"{{username}}\",\"password\":\"{{password}}\"}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "// 基础断言\r\npm.test(\"登录接口状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应耗时小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\n\r\n// 模拟登录返回token，存入环境变量\r\nconst mockLoginData = {\r\n    token: \"admin-mock-token-20260810\"\r\n};\r\n// 覆盖原生返回，模拟业务data结构\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: mockLoginData\r\n    }\r\n};\r\npm.environment.set(\"token\", mockLoginData.token);\r\nconsole.log(\"登录完成，已存储鉴权token：\", mockLoginData.token);",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "8LXJij8I2XD1P7rylyIxl": {
+                    "enable": false
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});\r\n\r\n// 新增账号逻辑校验，区分admin正确、wrong错误\r\nlet reqData = JSON.parse(pm.request.body.raw);\r\nif(reqData.username === \"admin\" && reqData.password === \"123456\"){\r\n    pm.test(\"账号密码正确\",function(){\r\n        pm.expect(true).eql(true);\r\n    })\r\n}else{\r\n    pm.test(\"账号密码错误，预期失败\",function(){\r\n        pm.expect(false).eql(true); // 错误账号直接断言失败\r\n    })\r\n}\r\npm.environment.set(\"token\", \"mock-token-001\");",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "8LXJij8I2XD1P7rylyIxl",
+                    "targetName": "POST 登录接口",
+                    "targetId": 499404680,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499404680
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "number": 2,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499405516,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429890,
+                "name": "",
+                "method": "get",
+                "path": "/get",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "3q08cZYklg",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "123719925",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "none",
+                  "data": "",
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"用户列表查询成功，状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"列表接口响应耗时小于800ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(800);\r\n});\r\n\r\n// 模拟原始用户列表数据（初始无自动化新增用户）\r\nconst mockUserList = [\r\n    {id: 1, username: \"管理员\"},\r\n    {id: 2, username: \"普通用户\"}\r\n];\r\n// 重写返回体，模拟标准业务结构\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: mockUserList\r\n    }\r\n};\r\n\r\npm.test(\"返回数据包含data数组\", function () {\r\n    let res = pm.response.json();\r\n    pm.expect(res).to.have.property(\"data\");\r\n    pm.expect(res.data).to.be.an(\"array\");\r\n});\r\nconsole.log(\"初始用户列表查询完成，原始用户：\", mockUserList);\r\n// 把原始列表存临时环境，供后续校验\r\npm.environment.set(\"originUserList\", JSON.stringify(mockUserList));",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含headers字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "mZz-flSdGEvS3xyrCsX_1",
+                    "targetName": "GET 用户列表(需要token鉴权)",
+                    "targetId": 499405516,
+                    "targetType": "apiDetail",
+                    "apiMethod": "get",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499405516
+              }
+            },
+            {
+              "name": "POST 新增用户(需要token鉴权)",
+              "number": 3,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499408636,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429889,
+                "name": "",
+                "method": "post",
+                "path": "/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "fzI4Zo6LT4",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "125500942",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\"nickname\":\"测试用户\"}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"新增用户接口返回200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"新增接口响应耗时小于600ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(600);\r\n});\r\n\r\n// 生成随机模拟用户ID\r\nconst newUserId = Math.floor(Math.random() * 10000) + 100;\r\nconst newUserInfo = {\r\n    id: newUserId,\r\n    username: \"自动化新增测试账号\"\r\n};\r\n// 模拟新增接口返回数据\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: newUserInfo\r\n    }\r\n};\r\n\r\npm.test(\"新增返回携带用户ID\", function () {\r\n    let res = pm.response.json();\r\n    pm.expect(res.data).to.have.property(\"id\");\r\n});\r\n// 存储新增用户ID，给修改、删除使用\r\npm.environment.set(\"targetUserId\", newUserId);\r\nconsole.log(\"新增用户成功，用户ID：\", newUserId);",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含data字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "j8F2zGZDHSBtFFY19tvDP",
+                    "targetName": "POST 新增用户(需要token鉴权)",
+                    "targetId": 499408636,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499408636
+              }
+            },
+            {
+              "name": "PUT 修改用户",
+              "number": 4,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499444008,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429888,
+                "name": "",
+                "method": "put",
+                "path": "https://httpbin.ceshiren.com/put",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "JBCLqJpXyv",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "186647439",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\r\n  \"id\": \"{{targetUserId}}\",\r\n  \"username\": \"自动化修改测试账号\"\r\n}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"修改用户接口状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"修改接口响应耗时小于600ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(600);\r\n});\r\n\r\n// 获取新增用户ID\r\nconst userId = pm.environment.get(\"targetUserId\");\r\n// 模拟修改后的用户数据\r\nconst updateUser = {\r\n    id: userId,\r\n    username: \"自动化_修改后账号\"\r\n};\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: updateUser\r\n    }\r\n};\r\n\r\npm.test(\"修改目标用户ID匹配\", function () {\r\n    let res = pm.response.json();\r\n    pm.expect(res.data.id).eql(userId);\r\n});\r\npm.test(\"用户名已更新\", function () {\r\n    let res = pm.response.json();\r\n    pm.expect(res.data.username).contains(\"修改\");\r\n});\r\nconsole.log(\"用户信息修改完成，修改后数据：\", updateUser);",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "// 校验HTTP状态码\r\nassert.equal(response.code, 200, \"修改用户接口响应码必须为200\");\r\n// 获取返回json数据\r\nlet resData = response.json.json;\r\n// 校验传入的用户ID匹配\r\nassert.equal(resData.id, userId, \"修改接口传入用户ID与新增用户ID不一致\");\r\n// 校验用户名修改成功\r\nassert.equal(resData.username, \"修改后的测试账号\", \"用户名称未修改成功\");",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "ePV3JUqpGKXtl33lgjNd8",
+                    "targetName": "PUT 修改用户",
+                    "targetId": 499444008,
+                    "targetType": "apiDetail",
+                    "apiMethod": "put",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499444008
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "number": 5,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499405516,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429908,
+                "name": "",
+                "method": "get",
+                "path": "/get",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "3q08cZYklg",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "123719925",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "none",
+                  "data": "",
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"修改后查询列表状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"列表接口响应耗时小于800ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(800);\r\n});\r\n\r\n// 拼接原始列表 + 修改后的目标用户\r\nconst originList = JSON.parse(pm.environment.get(\"originUserList\"));\r\nconst targetId = pm.environment.get(\"targetUserId\");\r\nconst updatedList = [\r\n    ...originList,\r\n    {id: targetId, username: \"自动化_修改后账号\"}\r\n];\r\n// 模拟返回列表\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: updatedList\r\n    }\r\n};\r\n\r\npm.test(\"列表存在修改后的用户\", function () {\r\n    let resList = pm.response.json().data;\r\n    let findUser = resList.find(item => item.id == targetId);\r\n    pm.expect(findUser).to.exist;\r\n    pm.expect(findUser.username).contains(\"修改\");\r\n});\r\nconsole.log(\"校验通过：修改后的用户已存在列表\");\r\n// 保存更新后的列表，给删除后校验用\r\npm.environment.set(\"afterUpdateList\", JSON.stringify(updatedList));",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含headers字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "mZz-flSdGEvS3xyrCsX_1",
+                    "targetName": "GET 用户列表(需要token鉴权)",
+                    "targetId": 499405516,
+                    "targetType": "apiDetail",
+                    "apiMethod": "get",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499405516
+              }
+            },
+            {
+              "name": "DELETE 删除用户",
+              "number": 6,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499445048,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429933,
+                "name": "",
+                "method": "delete",
+                "path": "https://httpbin.ceshiren.com/delete",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "199425826",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\r\n  \"id\": \"{{targetUserId}}\"\r\n}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"删除用户接口状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"删除接口响应耗时小于600ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(600);\r\n});\r\n\r\nconst userId = pm.environment.get(\"targetUserId\");\r\n// 模拟删除返回\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: {id: userId}\r\n    }\r\n};\r\n\r\npm.test(\"删除ID匹配目标用户\", function () {\r\n    let res = pm.response.json();\r\n    pm.expect(res.data.id).eql(userId);\r\n});\r\nconsole.log(\"目标用户执行删除操作完成\");",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "// 校验删除接口返回200\r\nassert.equal(response.code, 200, \"删除用户接口响应码必须为200\");\r\nlet resData = response.json.json;\r\nassert.equal(resData.id, userId, \"删除接口用户ID匹配失败\");",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "p3ypSsC22h9AFu-PXkq9_",
+                    "targetName": "DELETE 删除用户",
+                    "targetId": 499445048,
+                    "targetType": "apiDetail",
+                    "apiMethod": "delete",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499445048
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "number": 7,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499405516,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402429946,
+                "name": "",
+                "method": "get",
+                "path": "/get",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [
+                    {
+                      "id": "3q08cZYklg",
+                      "relatedName": "Authorization",
+                      "name": "Authorization",
+                      "value": "Bearer {{token}}",
+                      "type": "string",
+                      "description": "",
+                      "enable": true,
+                      "isDelete": false
+                    }
+                  ],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "123719925",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "none",
+                  "data": "",
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"删除后查询列表状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"列表接口响应耗时小于800ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(800);\r\n});\r\n\r\n// 删除后列表剔除目标用户\r\nconst updateList = JSON.parse(pm.environment.get(\"afterUpdateList\"));\r\nconst targetId = pm.environment.get(\"targetUserId\");\r\nconst afterDeleteList = updateList.filter(item => item.id != targetId);\r\npm.response.json = () => {\r\n    return {\r\n        code: 200,\r\n        data: afterDeleteList\r\n    }\r\n};\r\n\r\npm.test(\"列表中已移除被删除用户\", function () {\r\n    let resList = pm.response.json().data;\r\n    let findUser = resList.find(item => item.id == targetId);\r\n    pm.expect(findUser).to.not.exist;\r\n});\r\nconsole.log(\"✅ 完整CRUD流程全部校验通过：登录→查列表→新增→修改→校验存在→删除→校验消失\");",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {},
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"状态码200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"响应时间小于500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\npm.test(\"返回包含headers字段\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "mZz-flSdGEvS3xyrCsX_1",
+                    "targetName": "GET 用户列表(需要token鉴权)",
+                    "targetId": 499405516,
+                    "targetType": "apiDetail",
+                    "apiMethod": "get",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8360782,
+                "apiId": 499405516
+              }
+            }
+          ],
+          "id": 8612253,
+          "name": "CRUD用户增删改查完整自动化流程",
+          "tags": [],
+          "options": {
+            "environmentId": 48129689,
+            "useDataSetId": -1,
+            "iterationCount": 1,
+            "threadCount": 1,
+            "runnerId": 0,
+            "onError": "ignore",
+            "delayItem": 0,
+            "saveReportDetail": "all",
+            "saveVariables": true,
+            "readGlobalCookie": false,
+            "saveGlobalCookie": false
+          },
+          "priority": 2,
+          "ordering": 20,
+          "description": "",
+          "preProcessors": [],
+          "postProcessors": [],
+          "children": [],
+          "performanceTestOptions": {},
+          "apiTestDataSets": []
+        },
+        {
+          "steps": [],
+          "id": 8613234,
+          "name": "CSV 外部文件数据驱动",
+          "tags": [],
+          "options": {
+            "environmentId": 48129689,
+            "useDataSetId": 4320035,
+            "iterationCount": 1,
+            "threadCount": 1,
+            "runnerId": 0,
+            "onError": "ignore",
+            "delayItem": 0,
+            "saveReportDetail": "all",
+            "saveVariables": true,
+            "readGlobalCookie": false,
+            "saveGlobalCookie": false
+          },
+          "priority": 2,
+          "ordering": 30,
+          "description": "",
+          "preProcessors": [],
+          "postProcessors": [],
+          "children": [],
+          "performanceTestOptions": {},
+          "apiTestDataSets": [
+            {
+              "id": 4320035,
+              "name": "数据 1",
+              "relatedId": 8613234,
+              "apiTestDataList": [
+                {
+                  "id": 1475780,
+                  "data": "username,password,expect_result\nadmin,123456,success\nadmin,666666,fail\n,123456,fail\ntestuser,,fail\n",
+                  "dataSetId": 4320035,
+                  "relatedId": 8613234,
+                  "relatedType": 0,
+                  "environmentId": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "testCaseReferences": [],
+  "environments": [],
+  "commonScripts": [],
+  "databaseConnections": [],
+  "globalVariables": [],
+  "commonParameters": null,
+  "customFunctions": [],
+  "projectTestCaseCategories": [
+    {
+      "id": 12724180,
+      "name": "正向",
+      "description": "有效的输入和正确的预期结果,代表典型的用法。"
+    },
+    {
+      "id": 12724181,
+      "name": "负向",
+      "description": "消极的、无效的输入,如缺少字段、错误的类型、不支持的方法等。"
+    },
+    {
+      "id": 12724182,
+      "name": "边界值",
+      "description": "极端或边缘条件,如最大字符串长度、空值、零、null等"
+    },
+    {
+      "id": 12724183,
+      "name": "安全性",
+      "description": "可能暴露API安全性风险的测试用例。"
+    },
+    {
+      "id": 12724184,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectTestCaseTags": [
+    {
+      "id": 62858728,
+      "name": "仅传必要字段",
+      "description": "仅发送具有有效值的必填字段,省略所有可选字段,以测试最小有效请求。"
+    },
+    {
+      "id": 62858729,
+      "name": "语义合法",
+      "description": "使用语法正确且在业务逻辑或域上下文中也有意义的值。"
+    },
+    {
+      "id": 62858730,
+      "name": "覆盖枚举组合",
+      "description": "对所有枚举型参数,应用正交设计系统地构建参数及其枚举值的测试用例组合,专用于测试枚举覆盖率"
+    },
+    {
+      "id": 62858731,
+      "name": "其他正向",
+      "description": "提供符合API规范的真实有效的输入,产生正确和预期的结果。"
+    },
+    {
+      "id": 62858732,
+      "name": "缺失必填字段",
+      "description": "在请求主体或参数中省略一个或多个必需字段。"
+    },
+    {
+      "id": 62858733,
+      "name": "无效值",
+      "description": "提供的值类型和格式正确,但在逻辑上对该字段无效。"
+    },
+    {
+      "id": 62858734,
+      "name": "类型错误",
+      "description": "使用数据类型不正确的值,例如发送字符串而不是整数。"
+    },
+    {
+      "id": 62858735,
+      "name": "格式错误",
+      "description": "以不正确的格式提供值,例如,错误的日期模式,格式错误的电子邮件地址。"
+    },
+    {
+      "id": 62858736,
+      "name": "语义非法",
+      "description": "使用语法正确且格式正确的值,这些值在逻辑上不可能或违反域规则。"
+    },
+    {
+      "id": 62858737,
+      "name": "其他负向",
+      "description": "提供无效或意外的输入,应触发错误处理或拒绝API。"
+    },
+    {
+      "id": 62858738,
+      "name": "Null",
+      "description": "必须是 JSON 字面量 `null`(不是空的,也不是 \"null\")。"
+    },
+    {
+      "id": 62858739,
+      "name": "零值",
+      "description": "必须是数字字面值0。"
+    },
+    {
+      "id": 62858740,
+      "name": "空值",
+      "description": "必须是\"\"。"
+    },
+    {
+      "id": 62858741,
+      "name": "极大值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 62858742,
+      "name": "极小值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 62858743,
+      "name": "超出最大边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 62858744,
+      "name": "超出最小边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 62858745,
+      "name": "字符串过长",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 62858746,
+      "name": "字符串过短",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 62858747,
+      "name": "对象级别授权缺失",
+      "description": "对象级别授权缺失 - 用户在没有适当授权的情况下访问或操作数据对象。"
+    },
+    {
+      "id": 62858748,
+      "name": "访问控制",
+      "description": "基于角色、权限或属性来限制用户能访问哪些资源、能执行哪些操作"
+    },
+    {
+      "id": 62858749,
+      "name": "认证失败",
+      "description": "认证失败 - 认证薄弱、配置错误或被绕过,导致未授权访问。"
+    },
+    {
+      "id": 62858750,
+      "name": "SQL注入",
+      "description": "在输入字段中插入恶意SQL代码,测试是否存在SQL注入漏洞。"
+    },
+    {
+      "id": 62858751,
+      "name": "XSS注入",
+      "description": "注入JavaScript或HTML标签来测试跨站点脚本漏洞。"
+    },
+    {
+      "id": 62858752,
+      "name": "模糊输入",
+      "description": "发送大型或随机生成的有效载荷,以测试输入的有效性和稳定性。"
+    },
+    {
+      "id": 62858753,
+      "name": "命令行注入",
+      "description": "将shell命令插入输入以测试命令执行漏洞。"
+    },
+    {
+      "id": 62858754,
+      "name": "JSON注入",
+      "description": "插入恶意或意外的JSON结构来测试解析和验证。"
+    },
+    {
+      "id": 62858755,
+      "name": "NoSQL注入",
+      "description": "提供NoSQL特定的恶意查询或操作符来测试注入漏洞。"
+    },
+    {
+      "id": 62858756,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectAssociations": [],
+  "moduleSettings": [
+    {
+      "id": "8360782",
+      "name": "默认模块",
+      "description": "",
+      "moduleVariables": [],
+      "openApiInfo": {}
+    }
+  ]
+}

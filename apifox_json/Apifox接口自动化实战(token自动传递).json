@@ -1,0 +1,959 @@
+{
+  "apifoxProject": "1.0.0",
+  "$schema": {
+    "app": "apifox",
+    "type": "project",
+    "version": "1.2.0"
+  },
+  "info": {
+    "name": "Apifox接口自动化实战",
+    "description": "",
+    "mockRule": {
+      "rules": [],
+      "enableSystemRule": true
+    }
+  },
+  "projectSetting": {
+    "id": "8734449",
+    "auth": {},
+    "securityScheme": {},
+    "gateway": [],
+    "language": "zh-CN",
+    "apiStatuses": [
+      "developing",
+      "testing",
+      "released",
+      "deprecated"
+    ],
+    "mockSettings": {},
+    "preProcessors": [],
+    "postProcessors": [],
+    "advancedSettings": {
+      "allowAutomationWriteAutomationCreatedSprintBranch": true,
+      "enableJsonc": false,
+      "enableBigint": false,
+      "responseValidate": true,
+      "enableTestScenarioSetting": false,
+      "enableYAPICompatScript": false,
+      "isDefaultUrlEncoding": 2,
+      "publishedDocUrlRules": {
+        "defaultRule": "RESOURCE_KEY_ONLY",
+        "resourceKeyStandard": "NEW"
+      }
+    },
+    "initialDisabledMockIds": [],
+    "servers": [
+      {
+        "id": "default",
+        "name": "默认服务",
+        "moduleId": 8344935
+      }
+    ],
+    "cloudMock": {
+      "enable": false,
+      "security": "free",
+      "tokenKey": "apifoxToken",
+      "isCreatedAutomaticallyByDefaultConfigFromAdmin": true
+    }
+  },
+  "apiCollection": [
+    {
+      "name": "根目录",
+      "id": 92865931,
+      "auth": {},
+      "securityScheme": {},
+      "parentId": 0,
+      "serverId": "",
+      "description": "",
+      "identityPattern": {
+        "httpApi": {
+          "type": "methodAndPath",
+          "bodyType": "",
+          "fields": []
+        }
+      },
+      "shareSettings": {},
+      "visibility": "SHARED",
+      "moduleId": 8344935,
+      "preProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "postProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "inheritPostProcessors": {},
+      "inheritPreProcessors": {},
+      "items": [
+        {
+          "name": "深度实操",
+          "id": 92866433,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 8344935,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "POST 登录接口",
+              "api": {
+                "id": "498999818",
+                "method": "post",
+                "path": "https://httpbin.ceshiren.com/post",
+                "parameters": {},
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": [
+                    {
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "responses": [
+                  {
+                    "id": "114241308",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "itemSchema": {},
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n  \"token\": \"mock-token-888666\"\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 40,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 8344935,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "let res = pm.response.json();\r\n// 将token存入测试环境变量\r\npm.environment.set(\"access_token\", res.json.token);\r\nconsole.log(\"✅ Token提取成功：\", res.json.token);\r\n// 状态码断言\r\npm.test(\"登录请求返回200状态码\", function () {\r\n    pm.response.to.have.status(200);\r\n});",
+                    "defaultEnable": false,
+                    "enable": true,
+                    "id": "nOh8TyfDmfpvdpbhV_SW2"
+                  }
+                ],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "api": {
+                "id": "498999838",
+                "method": "get",
+                "path": "https://httpbin.ceshiren.com/headers",
+                "parameters": {},
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": [
+                    {
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "responses": [
+                  {
+                    "id": "131624974",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "itemSchema": {},
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 50,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 8344935,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"用户列表接口请求成功\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"请求自动携带Bearer鉴权头\", function () {\r\n    let res = pm.response.json();\r\n    // 兼容大写/小写两种key\r\n    let auth = res.headers.authorization || res.headers.Authorization;\r\n    pm.expect(auth).exists;\r\n    pm.expect(auth).to.include(\"Bearer\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": true,
+                    "id": "w4qsDe7hUoWkFlXx669Hc"
+                  }
+                ],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "POST 新增用户(需要token鉴权)",
+              "api": {
+                "id": "499000069",
+                "method": "post",
+                "path": "https://httpbin.ceshiren.com/post",
+                "parameters": {},
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": [
+                    {
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "responses": [
+                  {
+                    "id": "190039660",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "itemSchema": {},
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n  \"username\": \"test01\",\r\n  \"phone\": \"13800138000\"\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 60,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 8344935,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"新增用户接口200\", function () {\r\n    pm.response.to.have.status(200);\r\n});",
+                    "defaultEnable": false,
+                    "enable": true,
+                    "id": "WV4snhJf3tvbVCYEPD61z"
+                  }
+                ],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "socketCollection": [],
+  "docCollection": [],
+  "webSocketCollection": [],
+  "socketIOCollection": [],
+  "mcpClientCollection": [],
+  "responseCollection": [
+    {
+      "_databaseId": 9795923,
+      "updatedAt": "2026-08-07T02:20:52.000Z",
+      "id": 9795923,
+      "name": "根目录",
+      "type": "root",
+      "children": [],
+      "moduleId": 8344935,
+      "parentId": 0,
+      "ordering": [],
+      "items": []
+    }
+  ],
+  "schemaCollection": [
+    {
+      "id": 20783594,
+      "name": "根目录",
+      "visibility": "SHARED",
+      "moduleId": 8344935,
+      "items": [],
+      "ordering": []
+    }
+  ],
+  "securitySchemeCollection": [
+    {
+      "id": 5586961,
+      "moduleId": 8344935,
+      "name": "根目录",
+      "items": [],
+      "ordering": []
+    }
+  ],
+  "oasComponentCollection": [],
+  "requestCollection": [
+    {
+      "name": "根目录",
+      "children": [],
+      "ordering": [
+        "requestFolder.9392285"
+      ],
+      "items": []
+    }
+  ],
+  "apiTestCaseCollection": [
+    {
+      "id": 0,
+      "name": "Root",
+      "children": [],
+      "items": [
+        {
+          "steps": [
+            {
+              "name": "POST 登录接口",
+              "number": 1,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 498999818,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402116102,
+                "name": "",
+                "method": "post",
+                "path": "https://httpbin.ceshiren.com/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "114241308",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\r\n  \"token\": \"mock-token-888666\"\r\n}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "// 1. 状态码必须200\r\npm.test(\"状态码为200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. 接口返回耗时小于500ms\r\npm.test(\"响应时间正常\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\n\r\n// 3. 返回包含data字段\r\npm.test(\"返回正常数据\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "nOh8TyfDmfpvdpbhV_SW2": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "let res = pm.response.json();\r\n// 将token存入测试环境变量\r\npm.environment.set(\"access_token\", res.json.token);\r\nconsole.log(\"✅ Token提取成功：\", res.json.token);\r\n// 状态码断言\r\npm.test(\"登录请求返回200状态码\", function () {\r\n    pm.response.to.have.status(200);\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "nOh8TyfDmfpvdpbhV_SW2",
+                    "targetName": "POST 登录接口",
+                    "targetId": 498999818,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8344935,
+                "apiId": 498999818
+              }
+            },
+            {
+              "name": "GET 用户列表(需要token鉴权)",
+              "number": 4,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 498999838,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402896739,
+                "name": "",
+                "method": "get",
+                "path": "https://httpbin.ceshiren.com/headers",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "131624974",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "none",
+                  "data": "",
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "// 1. 状态码必须200\r\npm.test(\"状态码为200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. 接口返回耗时小于500ms\r\npm.test(\"响应时间正常\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\n\r\n// 3. 校验返回包含headers（适配当前接口）\r\npm.test(\"返回headers数据\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"headers\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 1
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "w4qsDe7hUoWkFlXx669Hc": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"用户列表接口请求成功\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\npm.test(\"请求自动携带Bearer鉴权头\", function () {\r\n    let res = pm.response.json();\r\n    // 兼容大写/小写两种key\r\n    let auth = res.headers.authorization || res.headers.Authorization;\r\n    pm.expect(auth).exists;\r\n    pm.expect(auth).to.include(\"Bearer\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "w4qsDe7hUoWkFlXx669Hc",
+                    "targetName": "GET 用户列表(需要token鉴权)",
+                    "targetId": 498999838,
+                    "targetType": "apiDetail",
+                    "apiMethod": "get",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8344935,
+                "apiId": 498999838
+              }
+            },
+            {
+              "name": "POST 新增用户(需要token鉴权)",
+              "number": 3,
+              "type": "http",
+              "bind": false,
+              "disable": false,
+              "bindType": "API",
+              "bindId": 499000069,
+              "syncMode": "MANUAL",
+              "httpApiCase": {
+                "id": 402116100,
+                "name": "",
+                "method": "post",
+                "path": "https://httpbin.ceshiren.com/post",
+                "auth": {},
+                "type": "DEBUG_CASE",
+                "options": {},
+                "parameters": {
+                  "query": [],
+                  "header": [],
+                  "cookie": [],
+                  "path": []
+                },
+                "responseId": "190039660",
+                "requestBody": {
+                  "parameters": [],
+                  "type": "application/json",
+                  "data": "{\r\n  \"username\": \"test01\",\r\n  \"phone\": \"13800138000\"\r\n}",
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "generateMode": "normal"
+                },
+                "preProcessors": [
+                  {
+                    "type": "placeholder",
+                    "renderType": "dynamicValueDivider",
+                    "defaultEnable": false,
+                    "enable": false
+                  }
+                ],
+                "postProcessors": [
+                  {
+                    "type": "customScript",
+                    "data": "// 1. 状态码必须200\r\npm.test(\"状态码为200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\n// 2. 接口返回耗时小于500ms\r\npm.test(\"响应时间正常\", function () {\r\n    pm.expect(pm.response.responseTime).to.below(500);\r\n});\r\n\r\n// 3. 返回包含data字段\r\npm.test(\"返回正常数据\", function () {\r\n    let json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"data\");\r\n});",
+                    "defaultEnable": false,
+                    "enable": true
+                  }
+                ],
+                "advancedSettings": {
+                  "disabledSystemHeaders": {},
+                  "isDefaultUrlEncoding": 2,
+                  "disableUrlEncoding": false
+                },
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "header": [],
+                  "cookie": []
+                },
+                "inheritPreProcessors": {},
+                "inheritPostProcessors": {
+                  "WV4snhJf3tvbVCYEPD61z": {
+                    "enable": true
+                  }
+                },
+                "inheritPreProcessorsSnapshot": [],
+                "inheritPostProcessorsSnapshot": [
+                  {
+                    "type": "customScript",
+                    "data": "pm.test(\"新增用户接口200\", function () {\r\n    pm.response.to.have.status(200);\r\n});",
+                    "defaultEnable": false,
+                    "enable": false,
+                    "id": "WV4snhJf3tvbVCYEPD61z",
+                    "targetName": "POST 新增用户(需要token鉴权)",
+                    "targetId": 499000069,
+                    "targetType": "apiDetail",
+                    "apiMethod": "post",
+                    "isInheritDefaultEnable": false
+                  }
+                ],
+                "moduleId": 8344935,
+                "apiId": 499000069
+              }
+            }
+          ],
+          "id": 8610274,
+          "name": "登录-用户列表-新增用户全流程",
+          "tags": [],
+          "options": {
+            "environmentId": 48107254,
+            "useDataSetId": -1,
+            "iterationCount": 1,
+            "threadCount": 1,
+            "runnerId": 0,
+            "onError": "ignore",
+            "delayItem": 0,
+            "saveReportDetail": "all",
+            "saveVariables": true,
+            "readGlobalCookie": false,
+            "saveGlobalCookie": false
+          },
+          "priority": 2,
+          "ordering": 10,
+          "description": "",
+          "preProcessors": [],
+          "postProcessors": [],
+          "children": [],
+          "performanceTestOptions": {},
+          "apiTestDataSets": [
+            {
+              "id": 4319598,
+              "name": "数据 1",
+              "relatedId": 8610274,
+              "apiTestDataList": [
+                {
+                  "id": 1475238,
+                  "data": "username,password,desc\nadmin,123456,正确账号密码\nadmin,,密码为空\nwrong,123456,错误账号\nadmin,654321,错误密码\n",
+                  "dataSetId": 4319598,
+                  "relatedId": 8610274,
+                  "relatedType": 0,
+                  "environmentId": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "testCaseReferences": [],
+  "environments": [],
+  "commonScripts": [],
+  "databaseConnections": [],
+  "globalVariables": [],
+  "commonParameters": {
+    "id": 1029296,
+    "createdAt": "2026-08-09T07:55:38.000Z",
+    "updatedAt": "2026-08-09T07:55:38.000Z",
+    "deletedAt": null,
+    "parameters": {
+      "header": [
+        {
+          "name": "Authorization",
+          "defaultEnable": true,
+          "type": "string",
+          "id": "kxtYUpwoBi",
+          "defaultValue": "Bearer {{access_token}}",
+          "schema": {
+            "type": "string",
+            "default": "Bearer {{access_token}}"
+          }
+        }
+      ]
+    },
+    "projectId": 8685889,
+    "creatorId": 3777768,
+    "editorId": 3777768
+  },
+  "customFunctions": [],
+  "projectTestCaseCategories": [
+    {
+      "id": 12663868,
+      "name": "正向",
+      "description": "有效的输入和正确的预期结果,代表典型的用法。"
+    },
+    {
+      "id": 12663869,
+      "name": "负向",
+      "description": "消极的、无效的输入,如缺少字段、错误的类型、不支持的方法等。"
+    },
+    {
+      "id": 12663870,
+      "name": "边界值",
+      "description": "极端或边缘条件,如最大字符串长度、空值、零、null等"
+    },
+    {
+      "id": 12663871,
+      "name": "安全性",
+      "description": "可能暴露API安全性风险的测试用例。"
+    },
+    {
+      "id": 12663872,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectTestCaseTags": [
+    {
+      "id": 62493734,
+      "name": "仅传必要字段",
+      "description": "仅发送具有有效值的必填字段,省略所有可选字段,以测试最小有效请求。"
+    },
+    {
+      "id": 62493735,
+      "name": "语义合法",
+      "description": "使用语法正确且在业务逻辑或域上下文中也有意义的值。"
+    },
+    {
+      "id": 62493736,
+      "name": "覆盖枚举组合",
+      "description": "对所有枚举型参数,应用正交设计系统地构建参数及其枚举值的测试用例组合,专用于测试枚举覆盖率"
+    },
+    {
+      "id": 62493737,
+      "name": "其他正向",
+      "description": "提供符合API规范的真实有效的输入,产生正确和预期的结果。"
+    },
+    {
+      "id": 62493738,
+      "name": "缺失必填字段",
+      "description": "在请求主体或参数中省略一个或多个必需字段。"
+    },
+    {
+      "id": 62493739,
+      "name": "无效值",
+      "description": "提供的值类型和格式正确,但在逻辑上对该字段无效。"
+    },
+    {
+      "id": 62493740,
+      "name": "类型错误",
+      "description": "使用数据类型不正确的值,例如发送字符串而不是整数。"
+    },
+    {
+      "id": 62493741,
+      "name": "格式错误",
+      "description": "以不正确的格式提供值,例如,错误的日期模式,格式错误的电子邮件地址。"
+    },
+    {
+      "id": 62493742,
+      "name": "语义非法",
+      "description": "使用语法正确且格式正确的值,这些值在逻辑上不可能或违反域规则。"
+    },
+    {
+      "id": 62493743,
+      "name": "其他负向",
+      "description": "提供无效或意外的输入,应触发错误处理或拒绝API。"
+    },
+    {
+      "id": 62493744,
+      "name": "Null",
+      "description": "必须是 JSON 字面量 `null`(不是空的,也不是 \"null\")。"
+    },
+    {
+      "id": 62493745,
+      "name": "零值",
+      "description": "必须是数字字面值0。"
+    },
+    {
+      "id": 62493746,
+      "name": "空值",
+      "description": "必须是\"\"。"
+    },
+    {
+      "id": 62493747,
+      "name": "极大值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 62493748,
+      "name": "极小值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 62493749,
+      "name": "超出最大边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 62493750,
+      "name": "超出最小边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 62493751,
+      "name": "字符串过长",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 62493752,
+      "name": "字符串过短",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 62493753,
+      "name": "对象级别授权缺失",
+      "description": "对象级别授权缺失 - 用户在没有适当授权的情况下访问或操作数据对象。"
+    },
+    {
+      "id": 62493754,
+      "name": "访问控制",
+      "description": "基于角色、权限或属性来限制用户能访问哪些资源、能执行哪些操作"
+    },
+    {
+      "id": 62493755,
+      "name": "认证失败",
+      "description": "认证失败 - 认证薄弱、配置错误或被绕过,导致未授权访问。"
+    },
+    {
+      "id": 62493756,
+      "name": "SQL注入",
+      "description": "在输入字段中插入恶意SQL代码,测试是否存在SQL注入漏洞。"
+    },
+    {
+      "id": 62493757,
+      "name": "XSS注入",
+      "description": "注入JavaScript或HTML标签来测试跨站点脚本漏洞。"
+    },
+    {
+      "id": 62493758,
+      "name": "模糊输入",
+      "description": "发送大型或随机生成的有效载荷,以测试输入的有效性和稳定性。"
+    },
+    {
+      "id": 62493759,
+      "name": "命令行注入",
+      "description": "将shell命令插入输入以测试命令执行漏洞。"
+    },
+    {
+      "id": 62493760,
+      "name": "JSON注入",
+      "description": "插入恶意或意外的JSON结构来测试解析和验证。"
+    },
+    {
+      "id": 62493761,
+      "name": "NoSQL注入",
+      "description": "提供NoSQL特定的恶意查询或操作符来测试注入漏洞。"
+    },
+    {
+      "id": 62493762,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectAssociations": [],
+  "moduleSettings": [
+    {
+      "id": "8344935",
+      "name": "默认模块",
+      "description": "",
+      "moduleVariables": [],
+      "openApiInfo": {}
+    }
+  ]
+}
