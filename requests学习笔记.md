@@ -16,30 +16,29 @@
 5. 底部 if __name__ == "__main__": 调用函数运行
 
 ### 1.模板代码如下：
-# 1.导入库
-import requests
+- #1.导入库
+- import requests
+- #2.定义函数
+- def 自定义函数名():
+-     # 3.接口地址
+-    url = "https://httpbin.ceshiren.com/get"
+-    try:
+-        # 4.发送请求，超时5秒
+-        resp = requests.请求方式(url, timeout=5)
+-        # 判断成功
+-        if resp.status_code == 200:
+-            print("请求成功")
+-            print("状态码：", resp.status_code)
+-            print("返回数据：", resp.数据格式)
+-        else:
+-            print("请求失败，错误码：", resp.status_code)
+-    except Exception as e:
+-        # 捕获所有网络异常
+-        print("请求出错：", e)
 
-# 2.定义函数
-def 自定义函数名():
-    # 3.接口地址
-    url = "https://httpbin.ceshiren.com/get"
-    try:
-        # 4.发送请求，超时5秒
-        resp = requests.请求方式(url, timeout=5)
-        # 判断成功
-        if resp.status_code == 200:
-            print("请求成功")
-            print("状态码：", resp.status_code)
-            print("返回数据：", resp.数据格式)
-        else:
-            print("请求失败，错误码：", resp.status_code)
-    except Exception as e:
-        # 捕获所有网络异常
-        print("请求出错：", e)
-
-# 执行函数
-if __name__ == "__main__":
-    自定义函数名()
+- #执行函数
+- if __name__ == "__main__":
+-     自定义函数名()
 
 ### 2.模板替换说明
 1. 自定义函数名：根据脚本修改，如 get_no_params、post_json
@@ -60,21 +59,21 @@ import requests
 
 resp = requests.get("https://httpbin.ceshiren.com/get")
 
-# 1. 状态码
+#### 1. 状态码
 print(resp.status_code)
-# 2. 响应头
+#### 2. 响应头
 print(resp.headers)
-# 3. 请求携带的cookie
+#### 3. 请求携带的cookie
 print(resp.cookies)
-# 4. 响应原始文本字符串
+#### 4. 响应原始文本字符串
 print(resp.text)
-# 5. 自动转字典（接口返回json时使用）
+#### 5. 自动转字典（接口返回json时使用）
 print(resp.json())
-# 6. 二进制响应内容（下载文件、图片）
+#### 6. 二进制响应内容（下载文件、图片）
 print(resp.content)
-# 7. 实际请求的完整url
+#### 7. 实际请求的完整url
 print(resp.url)
-# 8. 编码格式
+#### 8. 编码格式
 print(resp.encoding)
 
 >属性总结：
@@ -90,24 +89,25 @@ print(resp.encoding)
 1. 超时说明:timeout=数字 单位秒，规定时间内服务器无响应直接抛出超时异常，防止脚本卡死。
 2. 完整异常捕获模板:
 
-import requests
-from requests.exceptions import ReadTimeout, ConnectionError, RequestException
+- import requests
 
-def test_timeout():
-    url = "https://httpbin.ceshiren.com/get"
-    try:
-        # 设置1秒超时，模拟网络缓慢报错
-        resp = requests.get(url, timeout=1)
-        print(resp.status_code)
-    except ReadTimeout:
-        print("异常：读取超时，服务器响应太慢")
-    except ConnectionError:
-        print("异常：网络连接失败，无法访问网址")
-    except RequestException as e:
-        print("通用请求异常：", e)
+- from requests.exceptions import ReadTimeout, ConnectionError, RequestException
 
-if __name__ == "__main__":
-    test_timeout()
+- def test_timeout():
+-     url = "https://httpbin.ceshiren.com/get"
+-     try:
+-         # 设置1秒超时，模拟网络缓慢报错
+-         resp = requests.get(url, timeout=1)
+-         print(resp.status_code)
+-     except ReadTimeout:
+-         print("异常：读取超时，服务器响应太慢")
+-     except ConnectionError:
+-         print("异常：网络连接失败，无法访问网址")
+-     except RequestException as e:
+-         print("通用请求异常：", e)
+
+- if __name__ == "__main__":
+-     test_timeout()
 
 
 3. 异常分类：
