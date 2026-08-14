@@ -62,8 +62,3 @@ if __name__ == '__main__':
  1. PASSED：用例通过，断言全部满足
  2. FAILED：用例失败，断言不成立、网络异常、代码报错
 
- ## 5、本次实操项目结构
- python_requests_api_learning/
-├─ 01_basic_requests/      # requests原生基础脚本
-├─ 02_assert_practice/      # assert断言练习
-└─ 03_pytest_api_cases/    # pytest完整接口用例
