@@ -246,6 +246,7 @@ except Exception as e:
 
 ### 5.4 常用断言场景汇总
 | 校验需求 | 代码写法 | 使用对象 |
+| --- | --- | --- |
 | 校验接口响应成功 | assert resp.status_code == 200	| resp |
 | 校验 GET 查询参数 | assert res["args"]["key"] == "预期值" | res |
 | 校验 POST 表单参数 | assert res["form"]["key"] == "预期值" | res |
