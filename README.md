@@ -1,20 +1,181 @@
 # test-auto-devops-study 运维测试学习仓库
-> 秋招运维测试学习笔记、实操用例、接口测试产出归档
 
-## 📝学习笔记
-- [软件测试全流程笔记](./软件测试全流程笔记.md)
-- [用例设计思路总结](./用例设计思路总结.md)
-- [登录注册查询测试用例](./登录注册查询测试用例.md)
-- [bug缺陷管理笔记](./bug缺陷管理笔记.md)
-- [接口调试记录](./接口调试记录.md)
-- [Apifox接口测试操作手册](./Apifox接口测试操作手册.md)
-- [Apifox接口进阶](./Apifox接口进阶.md)
+> 秋招运维测试学习笔记、接口测试实操、Apifox 自动化测试产出、Python requests / pytest 自动化练习归档。
 
-## 🧪接口自动化测试产出
-### Apifox自动化测试报告
-> ⚠️ GitHub不会渲染HTML网页文件，请下载 `apifox_report/apifox‑接口自动化测试报告.html`，本地浏览器双击打开查看完整报告。
+这个仓库记录了从软件测试基础到接口自动化测试的学习过程，内容覆盖测试理论、用例设计、缺陷管理、HTTP 协议、抓包分析、Apifox 接口测试、Python requests 请求实战和 pytest 自动化用例。
 
-报告预览截图：
-![自动化报告预览截图](./apifox_report/report_preview.png)
+## 学习路线
 
-文件路径：`apifox_report/apifox‑接口自动化测试报告.html`
+建议按照下面顺序阅读和练习：
+
+1. 软件测试基础：先理解测试流程、测试分类、质量模型、缺陷基础。
+2. 用例设计：学习等价类、边界值、判定表、场景法和错误推测法。
+3. 缺陷管理：掌握 Bug 生命周期、缺陷提交规范和禅道实操。
+4. HTTP 与抓包：理解请求/响应报文、状态码、Token 鉴权和 Fiddler 抓包排查。
+5. Apifox 接口测试：完成单接口调试、断言、鉴权、接口关联和自动化场景。
+6. Python 接口自动化：使用 `requests` 编写接口脚本，再用 `pytest` 管理自动化测试用例。
+
+## 仓库内容分类
+
+### 1. 软件测试基础
+
+| 文件 | 内容 |
+| --- | --- |
+| [软件测试全流程笔记](./软件测试全流程笔记.md) | 软件测试基础、测试分类、质量模型、测试流程、用例基础、缺陷基础 |
+| [用例设计思路总结](./用例设计思路总结.md) | 等价类划分、边界值分析、判定表、场景法、错误推测法、组合策略 |
+| [登录注册查询测试用例](./登录注册查询测试用例.md) | 登录、注册、查询模块的测试用例设计 |
+| [接口测试用例](./接口测试用例.md) | 用户登录、用户注册接口测试用例集合 |
+
+### 2. 缺陷管理与实训
+
+| 文件 | 内容 |
+| --- | --- |
+| [bug缺陷管理笔记](./bug缺陷管理笔记.md) | Bug 生命周期、缺陷状态、禅道格式缺陷案例 |
+| [禅道缺陷管理实训笔记](./禅道缺陷管理实训笔记.md) | 禅道部署流程、提 Bug 操作、接口 Bug 清单、字段规范 |
+| [接口缺陷实战练习](./接口缺陷实战练习.md) | Token 为空、越权访问、空用户名等接口缺陷练习 |
+
+### 3. HTTP 协议与抓包
+
+| 文件 | 内容 |
+| --- | --- |
+| [HTTP 协议与抓包实战](./HTTP%20协议与抓包实战.md) | HTTP 请求响应流程、状态码、报文结构、Token 鉴权、Fiddler 抓包与排查 |
+| [接口调试记录](./接口调试记录.md) | GET、POST、form-data、x-www-form-urlencoded、PUT、DELETE 接口调试记录 |
+
+### 4. Apifox 接口测试
+
+| 文件 | 内容 |
+| --- | --- |
+| [Apifox接口测试操作手册](./Apifox接口测试操作手册.md) | Apifox 界面、请求方法、Params、Headers、Body、状态码、响应解析、报错排查 |
+| [Apifox接口进阶](./Apifox接口进阶.md) | Token、Session-Cookie、JWT、API-Key、接口关联、变量提取 |
+| [Apifox断言](./Apifox断言.md) | 断言对象、断言条件、JSONPath、断言失败排查 |
+| [Apifox测试实操记录](./Apifox测试实操记录.md) | 单接口调试、后置操作、Token 鉴权、登录异常场景实操 |
+
+### 5. Python 与 requests
+
+| 文件 | 内容 |
+| --- | --- |
+| [python核心知识点](./python核心知识点.md) | 注释、运行模式、变量、数据类型、字符串、字典、模块导入、函数、循环、常见报错 |
+| [requests学习笔记](./requests学习笔记.md) | requests 安装、GET/POST 请求模板、响应数据提取、timeout、异常捕获、断言 |
+| [Pytest知识笔记](./Pytest知识笔记.md) | pytest 基础、用例识别规则、常用命令 |
+
+## 实操代码目录
+
+```text
+python_requests_api_learning/
+├── 01_basic_requests/        # requests 基础请求练习
+├── 02_assert_practice/       # requests + assert 断言练习
+└── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
+```
+
+### requests 基础请求练习
+
+| 文件 | 练习点 |
+| --- | --- |
+| [01_get_no_params.py](./python_requests_api_learning/01_basic_requests/01_get_no_params.py) | GET 无参请求 |
+| [02_get_with_params.py](./python_requests_api_learning/01_basic_requests/02_get_with_params.py) | GET 携带 `params` 参数 |
+| [03_post_form.py](./python_requests_api_learning/01_basic_requests/03_post_form.py) | POST 表单提交 |
+| [04_post_json_body.py](./python_requests_api_learning/01_basic_requests/04_post_json_body.py) | POST JSON 请求体提交 |
+
+### requests 断言练习
+
+| 文件 | 练习点 |
+| --- | --- |
+| [01_get_no_params_assert.py](./python_requests_api_learning/02_assert_practice/01_get_no_params_assert.py) | GET 无参请求断言 |
+| [02_get_with_params_assert.py](./python_requests_api_learning/02_assert_practice/02_get_with_params_assert.py) | GET 参数断言 |
+| [03_post_form_data_assert.py](./python_requests_api_learning/02_assert_practice/03_post_form_data_assert.py) | POST 表单断言 |
+| [04_post_json_body_assert.py](./python_requests_api_learning/02_assert_practice/04_post_json_body_assert.py) | POST JSON 断言 |
+
+### pytest 接口自动化用例
+
+| 文件 | 练习点 |
+| --- | --- |
+| [test_01_get_no_params.py](./python_requests_api_learning/03_pytest_api_cases/test_01_get_no_params.py) | GET 无参接口自动化用例 |
+| [test_02_get_with_params.py](./python_requests_api_learning/03_pytest_api_cases/test_02_get_with_params.py) | GET 参数接口自动化用例 |
+| [test_03_post_form_data.py](./python_requests_api_learning/03_pytest_api_cases/test_03_post_form_data.py) | POST 表单接口自动化用例 |
+| [test_04_post_json_body.py](./python_requests_api_learning/03_pytest_api_cases/test_04_post_json_body.py) | POST JSON 接口自动化用例 |
+| [test_05_get_no_token.py](./python_requests_api_learning/03_pytest_api_cases/test_05_get_no_token.py) | 未携带 Token 异常场景 |
+| [test_06_post_form_wrong_pwd.py](./python_requests_api_learning/03_pytest_api_cases/test_06_post_form_wrong_pwd.py) | 表单密码错误异常场景 |
+| [test_07_post_json_empty_phone.py](./python_requests_api_learning/03_pytest_api_cases/test_07_post_json_empty_phone.py) | JSON 手机号为空异常场景 |
+| [test_08_get_timeout.py](./python_requests_api_learning/03_pytest_api_cases/test_08_get_timeout.py) | timeout 超时异常场景 |
+| [test_09_post_no_headers.py](./python_requests_api_learning/03_pytest_api_cases/test_09_post_no_headers.py) | 缺少请求头异常场景 |
+| [test_10_get_wrong_param.py](./python_requests_api_learning/03_pytest_api_cases/test_10_get_wrong_param.py) | 参数错误异常场景 |
+| [report.html](./python_requests_api_learning/03_pytest_api_cases/report.html) | pytest HTML 测试报告 |
+
+## Apifox 自动化测试产出
+
+### Apifox JSON 项目
+
+| 文件 | 内容 |
+| --- | --- |
+| [7个简易接口调试.json](./apifox_json/7个简易接口调试%20.json) | 基础接口调试项目 |
+| [Apifox接口自动化完整实训项目.json](./apifox_json/Apifox接口自动化完整实训项目.json) | Apifox 自动化完整实训项目 |
+| [Apifox接口自动化实战(token自动传递).json](./apifox_json/Apifox接口自动化实战(token自动传递).json) | Token 自动传递接口自动化项目 |
+| [CSV 文件数据驱动.json](./apifox_json/CSV%20文件数据驱动.json) | CSV 数据驱动项目 |
+
+### Apifox 测试报告与记录
+
+> GitHub 不能直接渲染 HTML 报告页面。查看 `.html` 报告时，建议下载到本地后用浏览器打开。
+
+| 文件 | 内容 |
+| --- | --- |
+| [01_登录 Token 自动传递自动化测试](./apifox_report/01_登录%20Token%20自动传递自动化测试.md) | 登录鉴权 Token 自动传递实操记录 |
+| [01_单用例自动化测试报告_全通过.html](./apifox_report/01_单用例自动化测试报告_全通过.html) | 单用例自动化测试 HTML 报告 |
+| [01_单用例自动化测试报告_全通过.jpeg](./apifox_report/01_单用例自动化测试报告_全通过.jpeg) | 单用例报告截图 |
+| [02_多数据集数据驱动自动化测试](./apifox_report/02_多数据集数据驱动自动化测试.md) | 多数据集数据驱动实操记录 |
+| [02_多数据集数据驱动自动化测试报告_含失败用例.html](./apifox_report/02_多数据集数据驱动自动化测试报告_含失败用例.html) | 数据驱动 HTML 报告 |
+| [02_多数据集数据驱动自动化测试报告_含失败用例.png](./apifox_report/02_多数据集数据驱动自动化测试报告_含失败用例.png) | 数据驱动报告截图 |
+| [03_用户 CRUD 完整流程自动化实战](./apifox_report/03_用户%20CRUD%20完整流程自动化实战.md) | 用户 CRUD 完整流程自动化实战记录 |
+| [03_用户管理CRUD完整流程自动化测试报告_全部通过.html](./apifox_report/03_用户管理CRUD完整流程自动化测试报告_全部通过.html) | 用户 CRUD HTML 报告 |
+| [03_用户管理CRUD完整流程自动化测试报告_全部通过.png](./apifox_report/03_用户管理CRUD完整流程自动化测试报告_全部通过.png) | 用户 CRUD 报告截图 |
+
+## 本地运行 Python 接口自动化
+
+### 1. 安装依赖
+
+```bash
+pip install requests pytest pytest-html
+```
+
+如果本机有多个 Python 版本，可以使用：
+
+```bash
+pip3 install requests pytest pytest-html
+```
+
+### 2. 运行 requests 脚本
+
+```bash
+cd python_requests_api_learning/01_basic_requests
+python 01_get_no_params.py
+```
+
+### 3. 运行 pytest 用例
+
+```bash
+cd python_requests_api_learning/03_pytest_api_cases
+pytest -q
+```
+
+生成 HTML 测试报告：
+
+```bash
+pytest -q --html=report.html --self-contained-html
+```
+
+## 当前学习覆盖能力
+
+- 测试基础理论与完整测试流程
+- 测试用例设计方法与模块用例编写
+- 缺陷生命周期、Bug 提交规范与禅道实操
+- HTTP 请求响应、状态码、报文结构和抓包排查
+- Apifox 单接口调试、断言、鉴权、接口关联和自动化测试
+- Python 基础语法、requests 请求封装、异常捕获和响应解析
+- pytest 自动化用例编写、异常场景覆盖和 HTML 报告生成
+
+## GitHub 查看说明
+
+- Markdown 文件可直接在 GitHub 页面阅读。
+- 图片报告可直接预览，例如 `.png`、`.jpeg` 文件。
+- HTML 报告建议下载到本地后用浏览器打开。
+- Apifox JSON 文件可导入 Apifox 查看完整接口项目。
+
