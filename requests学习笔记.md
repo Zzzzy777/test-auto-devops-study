@@ -12,7 +12,12 @@
   - [2.4 具体代码示例](#24-具体代码示例)
 - [3. 响应数据提取](#3-响应数据提取)
 - [4. timeout 超时与异常捕获](#4-timeout-超时与异常捕获)
-
+- [5.  接口自动化断言（新增）](#5-接口自动化断言)
+  - [5.1 assert 断言基础语法](#51-assert-断言基础语法)
+  - [5.2 两种核心对象：resp /res 区分](#52-两种核心对象resp-res-区分)
+  - [5.3 分层异常捕获（断言异常独立区分）](#53-分层异常捕获（断言异常独立区分)
+  - [5.4 5.4 常用断言场景汇总](#54-常用断言场景汇总)
+  - [5.5 5.5 高频报错 & 踩坑总结](#55-高频报错--踩坑总结)
 ## 1. requests 安装
 
 ### 安装命令
@@ -23,9 +28,9 @@ pip install requests
 
 如果电脑上有多个 Python 版本，可以使用：
 
-```bash
-pip3 install requests
-```
+    ```bash
+    pip3 install requests
+    ```
 
 ## 2. GET、POST 请求传参代码示例
 
@@ -185,3 +190,81 @@ if __name__ == "__main__":
 | `ConnectionError` | 连接失败，例如网址打不开、断网 |
 | `RequestException` | `requests` 所有异常的父类，通常用于兜底捕获 |
 
+## 5. 接口自动化断言
+### 5.1 assert 断言基础语法
+
+#### 语言格式
+```python
+assert 判断条件, "断言失败时打印的提示文字"
+```
+
+- 条件成立：代码正常往下执行，无任何输出；
+- 条件不成立：抛出 AssertionError 异常，打印自定义提示；
+- 作用：自动化校验接口返回是否符合预期，是接口测试核心校验手段。
+
+#### 简单示例
+```python
+# 校验状态码必须是200
+assert resp.status_code == 200, f"请求失败，实际状态码：{resp.status_code}"
+```
+
+### 5.2 两种核心对象：resp /res 区分
+1. resp = requests.get/post(...)
+- 完整响应 Response 对象，包含请求全部底层信息：状态码、响应头、原始文本、cookie、请求 url 等；
+- 可用属性：resp.status_code、resp.headers、resp.text、resp.cookies
+2. res = resp.json()
+- 仅接口返回的 JSON 业务数据，自动转为 Python 字典，只能读取业务字段；
+- 取值方式：res["键名"]，不能读取状态码、响应头。
+
+直观对比
+```python
+resp = requests.get(url)  # 完整响应包
+res = resp.json()          # 解析后的业务json字典
+
+# resp独有（底层信息校验）
+assert resp.status_code == 200
+
+# res独有（业务数据校验）
+assert res["args"]["username"] == "admin"
+```
+
+### 5.3 分层异常捕获（断言异常独立区分）
+断言失败属于 AssertionError，要单独捕获，和网络、键缺失等异常分开，方便定位问题：
+```python
+try:
+    resp = requests.get(url, timeout=10)
+    res = resp.json()
+    # 一堆断言
+    assert resp.status_code == 200
+except AssertionError as e:
+    # 业务校验不通过（参数错误、状态码不对、cookie不匹配）
+    print("❌ 断言校验失败：", e)
+except Exception as e:
+    # 网络、接口无json、键不存在、超时等其他错误
+    print("❌ 请求异常：", e)
+```
+
+### 5.4 常用断言场景汇总
+| 校验需求 | 代码写法 | 使用对象 |
+| 校验接口响应成功 | assert resp.status_code == 200	| resp |
+| 校验 GET 查询参数 | assert res["args"]["key"] == "预期值" | res |
+| 校验 POST 表单参数 | assert res["form"]["key"] == "预期值" | res |
+| 校验 Cookie 会话 | assert res["cookies"]["session_id"] == "xxx" | res（仅 GET 接口） |
+| 校验自定义请求头 | assert res["headers"]["User-Agent"] == "xxx" | res |
+| 打印真实值方便排错 | assert a == b, f"预期{b}，实际{a}" | 通用 |
+
+### 5.5 高频报错 & 踩坑总结
+1. 语法错误：assert ["args"]["username"]
+- 漏写 res，[] 单独创建列表，列表只能用数字下标；正确：assert res["args"]["username"]
+2. KeyError: 'cookies'
+- 在 /post 接口读取 res["cookies"]，POST 接口无顶层 cookies 字段，删除该行或换 GET 接口。
+3. 类型不匹配断言失败
+- GET params 传数字 id=10086，接口返回字符串 "10086"；
+- 错误：assert res["args"]["id"] == 10086
+- 正确：assert res["args"]["id"] == "10086"
+4. if name = "main"
+- 赋值单等号，判断相等必须双等号 ==
+5. f-string 逗号放引号内部
+- 错误：assert xxx == "值"f"提示"
+- 正确：assert xxx == "值", f"提示文案"
+6. 全角中文符号、空格会直接代码报错，所有标点统一英文。
