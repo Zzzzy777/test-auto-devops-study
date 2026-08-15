@@ -5,9 +5,7 @@ import requests
 
 from common.logger import get_logger
 
-
 logger = get_logger(__name__)
-
 
 def pytest_addoption(parser):
     parser.addoption(
