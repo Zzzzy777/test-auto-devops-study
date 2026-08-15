@@ -11,6 +11,8 @@ test-auto-devops-study/
 ├── 03_HTTP协议与接口调试/        # HTTP 协议、抓包、接口调试记录
 ├── 04_Apifox接口测试/            # Apifox 笔记、JSON 项目、自动化测试报告
 ├── 05_Python接口自动化/          # Python、requests、pytest、自动化代码
+├── 第一周复盘.md
+├── 第二周复盘.md
 ├── README.md
 └── .gitattributes
 ```
@@ -24,8 +26,16 @@ test-auto-devops-study/
 3. [HTTP 协议与接口调试](#3-http-协议与接口调试)：理解请求响应、状态码、报文结构和抓包排查。
 4. [Apifox 接口测试](#4-apifox-接口测试)：练习接口调试、断言、鉴权、接口关联和自动化场景。
 5. [Python 接口自动化](#5-python-接口自动化)：使用 `requests` 编写接口脚本，再用 `pytest` 管理自动化用例。
+6. [阶段复盘](#阶段复盘)：按周整理完成内容、实操产出、踩坑和后续补强。
 
 ## 内容导航
+
+### 阶段复盘
+
+| 文件 | 内容 |
+| --- | --- |
+| [第一周复盘](./第一周复盘.md) | 8.6-8.12 测试基础、用例设计、接口测试、HTTP 抓包和 Apifox 自动化复盘 |
+| [第二周复盘](./第二周复盘.md) | 8.13-8.19 禅道、Python、requests、pytest、fixture、Allure 和 demo 项目复盘 |
 
 ### 1. 软件测试基础
 
@@ -92,14 +102,20 @@ test-auto-devops-study/
 | [python核心知识点](./05_Python接口自动化/python核心知识点.md) | 注释、运行模式、变量、数据类型、字符串、字典、模块导入、函数、循环、常见报错 |
 | [requests学习笔记](./05_Python接口自动化/requests学习笔记.md) | requests 安装、GET/POST 请求模板、响应数据提取、timeout、异常捕获、断言 |
 | [Pytest知识笔记](./05_Python接口自动化/Pytest知识笔记.md) | pytest 基础、用例识别规则、常用命令 |
+| [Pytest Fixture 学习笔记](./05_Python接口自动化/Pytest‑Fixture%20学习笔记.md) | fixture 前置准备、作用域、Token 复用 |
+| [Pytest + Allure 接口自动化](./05_Python接口自动化/Pytest+Allure%20接口自动化.md) | Allure 注解、报告生成、日志脚本和常见问题 |
 
 #### 代码目录
 
 ```text
-05_Python接口自动化/python_requests_api_learning/
-├── 01_basic_requests/        # requests 基础请求练习
-├── 02_assert_practice/       # requests + assert 断言练习
-└── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
+05_Python接口自动化/
+├── python_requests_api_learning/
+│   ├── 01_basic_requests/        # requests 基础请求练习
+│   ├── 02_assert_practice/       # requests + assert 断言练习
+│   ├── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
+│   ├── 04_pytest_fixture_token/  # fixture 和 token 复用练习
+│   └── 05_allure_log_demo/       # Allure 报告和日志练习
+└── pytest_api_demo/              # 标准 pytest 接口自动化 demo
 ```
 
 #### requests 基础请求练习
@@ -136,18 +152,26 @@ test-auto-devops-study/
 | [test_10_get_wrong_param.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_10_get_wrong_param.py) | 参数错误异常场景 |
 | [report.html](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/report.html) | pytest HTML 测试报告 |
 
+#### 标准 pytest 接口自动化 demo
+
+| 文件 | 说明 |
+| --- | --- |
+| [pytest_api_demo README](./05_Python接口自动化/pytest_api_demo/README.md) | demo 项目说明、运行命令、报告生成方式 |
+| [requirements.txt](./05_Python接口自动化/pytest_api_demo/requirements.txt) | 项目依赖 |
+| [pytest.ini](./05_Python接口自动化/pytest_api_demo/pytest.ini) | pytest 用例发现和执行配置 |
+| [conftest.py](./05_Python接口自动化/pytest_api_demo/conftest.py) | 公共 fixture、base_url、session、token 复用 |
+| [test_01_basic_api.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_01_basic_api.py) | GET / POST 基础请求 |
+| [test_02_headers_cookie.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_02_headers_cookie.py) | 请求头和 Cookie 断言 |
+| [test_03_auth_token.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_03_auth_token.py) | Token fixture 复用 |
+| [test_04_negative_cases.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_04_negative_cases.py) | 404、鉴权缺失、超时异常场景 |
+
 ## 本地运行 Python 接口自动化
 
 ### 安装依赖
 
 ```bash
-pip install requests pytest pytest-html
-```
-
-如果本机有多个 Python 版本，可以使用：
-
-```bash
-pip3 install requests pytest pytest-html
+cd 05_Python接口自动化/pytest_api_demo
+pip install -r requirements.txt
 ```
 
 ### 运行 requests 脚本
@@ -170,6 +194,25 @@ pytest -q
 pytest -q --html=report.html --self-contained-html
 ```
 
+### 运行标准 pytest demo
+
+```bash
+cd 05_Python接口自动化/pytest_api_demo
+pytest
+```
+
+生成 pytest-html 报告：
+
+```bash
+pytest --html=reports/report.html --self-contained-html
+```
+
+生成 Allure 原始结果：
+
+```bash
+pytest --alluredir=allure-results
+```
+
 ## 当前学习覆盖能力
 
 - 软件测试基础理论与完整测试流程
@@ -179,6 +222,9 @@ pytest -q --html=report.html --self-contained-html
 - Apifox 单接口调试、断言、鉴权、接口关联和自动化测试
 - Python 基础语法、requests 请求封装、异常捕获和响应解析
 - pytest 自动化用例编写、异常场景覆盖和 HTML 报告生成
+- fixture 管理公共前置条件，复用 Token
+- Allure 注解、日志输出和可视化报告生成
+- 标准 pytest demo 项目结构、依赖管理和执行配置
 
 ## GitHub 查看说明
 
