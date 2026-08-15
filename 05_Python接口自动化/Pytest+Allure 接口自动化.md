@@ -11,13 +11,13 @@ pip install pytest
 pip install allure-pytest
 ```
 >注意：allure‑pytest只是 Python 库，还需要单独下载 Allure 命令行工具才能生成网页。
->1.allure-pytest：运行用例、收集用例数据，产出 allure-results
->2.Allure 命令行工具：读取原始数据，生成可视化 HTML 报告
+- >1.allure-pytest：运行用例、收集用例数据，产出 allure-results
+- >2.Allure 命令行工具：读取原始数据，生成可视化 HTML 报告
 
 ## 3.Allure 三大核心注解
 ### 层级关系：feature（模块） > story（子场景） > title（用例标题）
 | 注解 | 作用 | 使用位置 |
-| ``` | ``` | ``` |
+| --- | --- | --- |
 | @allure.feature ("模块名称") | 一级大功能模块，报告 Behaviors 分类 | 测试类上方 |
 | @allure.story ("功能场景") |模块下细分业务场景 | 测试方法上方 |
 | @allure.title ("用例名称") | 自定义报告展示的用例标题，替代默认函数名	| 测试方法上方 |
