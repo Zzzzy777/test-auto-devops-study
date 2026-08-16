@@ -1,2 +1,0 @@
-[32mINFO    [0m conftest:conftest.py:39 Start login request and prepare reusable token.
-[32mINFO    [0m conftest:conftest.py:46 Token prepared successfully.

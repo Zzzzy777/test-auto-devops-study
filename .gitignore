@@ -12,8 +12,8 @@ env/
 reports/
 logs/
 allure-results/
+allure-report/
 
 # Local editor files
 .idea/
 .vscode/
-

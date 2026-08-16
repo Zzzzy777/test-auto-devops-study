@@ -1,4 +1,4 @@
-# test-auto-devops-study 运维测试学习仓库
+﻿# test-auto-devops-study 运维测试学习仓库
 
 > 面向秋招与日常练习的运维测试学习资料库，覆盖软件测试基础、接口测试、缺陷管理、HTTP 抓包、Apifox 实操、Python requests 与 pytest 接口自动化。
 
@@ -99,94 +99,98 @@ test-auto-devops-study/
 
 | 文件 | 内容 |
 | --- | --- |
-| [python核心知识点](./05_Python接口自动化/python核心知识点.md) | 注释、运行模式、变量、数据类型、字符串、字典、模块导入、函数、循环、常见报错 |
-| [requests学习笔记](./05_Python接口自动化/requests学习笔记.md) | requests 安装、GET/POST 请求模板、响应数据提取、timeout、异常捕获、断言 |
-| [Pytest知识笔记](./05_Python接口自动化/Pytest知识笔记.md) | pytest 基础、用例识别规则、常用命令 |
-| [Pytest Fixture 学习笔记](./05_Python接口自动化/Pytest‑Fixture%20学习笔记.md) | fixture 前置准备、作用域、Token 复用 |
-| [Pytest + Allure 接口自动化](./05_Python接口自动化/Pytest+Allure%20接口自动化.md) | Allure 注解、报告生成、日志脚本和常见问题 |
+| [Python接口自动化总览](./05_Python接口自动化/README.md) | 本目录导航，说明学习笔记、阶段练习、完整项目的区别 |
+| [python核心知识点](./05_Python接口自动化/01_学习笔记/python核心知识点.md) | 注释、运行模式、变量、数据类型、字符串、字典、模块导入、函数、循环、常见报错 |
+| [requests学习笔记](./05_Python接口自动化/01_学习笔记/requests学习笔记.md) | requests 安装、GET/POST 请求模板、响应数据提取、timeout、异常捕获、断言 |
+| [Pytest知识笔记](./05_Python接口自动化/01_学习笔记/Pytest知识笔记.md) | pytest 基础、用例识别规则、常用命令 |
+| [Pytest Fixture 学习笔记](./05_Python接口自动化/01_学习笔记/Pytest‑Fixture%20学习笔记.md) | fixture 前置准备、作用域、Token 复用 |
+| [Pytest + Allure 接口自动化](./05_Python接口自动化/01_学习笔记/Pytest+Allure%20接口自动化.md) | Allure 注解、报告生成、日志脚本和常见问题 |
 
 #### 代码目录
 
 ```text
 05_Python接口自动化/
-├── python_requests_api_learning/
-│   ├── 01_basic_requests/        # requests 基础请求练习
-│   ├── 02_assert_practice/       # requests + assert 断言练习
-│   ├── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
-│   ├── 04_pytest_fixture_token/  # fixture 和 token 复用练习
-│   └── 05_allure_log_demo/       # Allure 报告和日志练习
-└── pytest_api_demo/              # 标准 pytest 接口自动化 demo
+├── 01_学习笔记/
+├── 02_阶段练习/
+│   └── python_requests_api_learning/
+│       ├── 01_basic_requests/        # requests 基础请求练习
+│       ├── 02_assert_practice/       # requests + assert 断言练习
+│       ├── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
+│       ├── 04_pytest_fixture_token/  # fixture 和 token 复用练习
+│       └── 05_allure_log_demo/       # Allure 报告和日志练习
+└── 03_完整项目/
+    └── pytest_api_demo/          # 标准 pytest 接口自动化 demo
 ```
 
 #### requests 基础请求练习
 
 | 文件 | 练习点 |
 | --- | --- |
-| [01_get_no_params.py](./05_Python接口自动化/python_requests_api_learning/01_basic_requests/01_get_no_params.py) | GET 无参请求 |
-| [02_get_with_params.py](./05_Python接口自动化/python_requests_api_learning/01_basic_requests/02_get_with_params.py) | GET 携带 `params` 参数 |
-| [03_post_form.py](./05_Python接口自动化/python_requests_api_learning/01_basic_requests/03_post_form.py) | POST 表单提交 |
-| [04_post_json_body.py](./05_Python接口自动化/python_requests_api_learning/01_basic_requests/04_post_json_body.py) | POST JSON 请求体提交 |
+| [01_get_no_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/01_get_no_params.py) | GET 无参请求 |
+| [02_get_with_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/02_get_with_params.py) | GET 携带 `params` 参数 |
+| [03_post_form.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/03_post_form.py) | POST 表单提交 |
+| [04_post_json_body.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/04_post_json_body.py) | POST JSON 请求体提交 |
 
 #### requests 断言练习
 
 | 文件 | 练习点 |
 | --- | --- |
-| [01_get_no_params_assert.py](./05_Python接口自动化/python_requests_api_learning/02_assert_practice/01_get_no_params_assert.py) | GET 无参请求断言 |
-| [02_get_with_params_assert.py](./05_Python接口自动化/python_requests_api_learning/02_assert_practice/02_get_with_params_assert.py) | GET 参数断言 |
-| [03_post_form_data_assert.py](./05_Python接口自动化/python_requests_api_learning/02_assert_practice/03_post_form_data_assert.py) | POST 表单断言 |
-| [04_post_json_body_assert.py](./05_Python接口自动化/python_requests_api_learning/02_assert_practice/04_post_json_body_assert.py) | POST JSON 断言 |
+| [01_get_no_params_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/01_get_no_params_assert.py) | GET 无参请求断言 |
+| [02_get_with_params_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/02_get_with_params_assert.py) | GET 参数断言 |
+| [03_post_form_data_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/03_post_form_data_assert.py) | POST 表单断言 |
+| [04_post_json_body_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/04_post_json_body_assert.py) | POST JSON 断言 |
 
 #### pytest 接口自动化用例
 
 | 文件 | 练习点 |
 | --- | --- |
-| [test_01_get_no_params.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_01_get_no_params.py) | GET 无参接口自动化用例 |
-| [test_02_get_with_params.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_02_get_with_params.py) | GET 参数接口自动化用例 |
-| [test_03_post_form_data.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_03_post_form_data.py) | POST 表单接口自动化用例 |
-| [test_04_post_json_body.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_04_post_json_body.py) | POST JSON 接口自动化用例 |
-| [test_05_get_no_token.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_05_get_no_token.py) | 未携带 Token 异常场景 |
-| [test_06_post_form_wrong_pwd.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_06_post_form_wrong_pwd.py) | 表单密码错误异常场景 |
-| [test_07_post_json_empty_phone.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_07_post_json_empty_phone.py) | JSON 手机号为空异常场景 |
-| [test_08_get_timeout.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_08_get_timeout.py) | timeout 超时异常场景 |
-| [test_09_post_no_headers.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_09_post_no_headers.py) | 缺少请求头异常场景 |
-| [test_10_get_wrong_param.py](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/test_10_get_wrong_param.py) | 参数错误异常场景 |
-| [report.html](./05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases/report.html) | pytest HTML 测试报告 |
+| [test_01_get_no_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_01_get_no_params.py) | GET 无参接口自动化用例 |
+| [test_02_get_with_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_02_get_with_params.py) | GET 参数接口自动化用例 |
+| [test_03_post_form_data.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_03_post_form_data.py) | POST 表单接口自动化用例 |
+| [test_04_post_json_body.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_04_post_json_body.py) | POST JSON 接口自动化用例 |
+| [test_05_get_no_token.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_05_get_no_token.py) | 未携带 Token 异常场景 |
+| [test_06_post_form_wrong_pwd.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_06_post_form_wrong_pwd.py) | 表单密码错误异常场景 |
+| [test_07_post_json_empty_phone.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_07_post_json_empty_phone.py) | JSON 手机号为空异常场景 |
+| [test_08_get_timeout.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_08_get_timeout.py) | timeout 超时异常场景 |
+| [test_09_post_no_headers.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_09_post_no_headers.py) | 缺少请求头异常场景 |
+| [test_10_get_wrong_param.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_10_get_wrong_param.py) | 参数错误异常场景 |
+| [report.html](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/report.html) | pytest HTML 测试报告 |
 
 #### 标准 pytest 接口自动化 demo
 
 | 文件 | 说明 |
 | --- | --- |
-| [pytest_api_demo README](./05_Python接口自动化/pytest_api_demo/README.md) | demo 项目说明、运行命令、报告生成方式 |
-| [测试报告与截图说明](./05_Python接口自动化/pytest_api_demo/docs/测试报告与截图说明.md) | pytest 执行结果、pytest-html 报告、Allure 报告截图说明 |
-| [pytest-html 报告](./05_Python接口自动化/pytest_api_demo/docs/reports/pytest_api_demo_report.html) | 可下载后用浏览器打开的 HTML 测试报告 |
-| [requirements.txt](./05_Python接口自动化/pytest_api_demo/requirements.txt) | 项目依赖 |
-| [pytest.ini](./05_Python接口自动化/pytest_api_demo/pytest.ini) | pytest 用例发现和执行配置 |
-| [conftest.py](./05_Python接口自动化/pytest_api_demo/conftest.py) | 公共 fixture、base_url、session、token 复用 |
-| [test_01_basic_api.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_01_basic_api.py) | GET / POST 基础请求 |
-| [test_02_headers_cookie.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_02_headers_cookie.py) | 请求头和 Cookie 断言 |
-| [test_03_auth_token.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_03_auth_token.py) | Token fixture 复用 |
-| [test_04_negative_cases.py](./05_Python接口自动化/pytest_api_demo/test_cases/test_04_negative_cases.py) | 404、鉴权缺失、超时异常场景 |
+| [pytest_api_demo README](./05_Python接口自动化/03_完整项目/pytest_api_demo/README.md) | demo 项目说明、运行命令、报告生成方式 |
+| [测试报告与截图说明](./05_Python接口自动化/03_完整项目/pytest_api_demo/docs/测试报告与截图说明.md) | pytest 执行结果、pytest-html 报告、Allure 报告截图说明 |
+| [pytest-html 报告](./05_Python接口自动化/03_完整项目/pytest_api_demo/docs/html_reports/pytest_api_demo_report.html) | 可下载后用浏览器打开的 HTML 测试报告 |
+| [requirements.txt](./05_Python接口自动化/03_完整项目/pytest_api_demo/requirements.txt) | 项目依赖 |
+| [pytest.ini](./05_Python接口自动化/03_完整项目/pytest_api_demo/pytest.ini) | pytest 用例发现和执行配置 |
+| [conftest.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/conftest.py) | 公共 fixture、base_url、session、token 复用 |
+| [test_01_basic_api.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_01_basic_api.py) | GET / POST 基础请求 |
+| [test_02_headers_cookie.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_02_headers_cookie.py) | 请求头和 Cookie 断言 |
+| [test_03_auth_token.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_03_auth_token.py) | Token fixture 复用 |
+| [test_04_negative_cases.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_04_negative_cases.py) | 404、鉴权缺失、超时异常场景 |
 
 ## 本地运行 Python 接口自动化
 
 ### 安装依赖
 
 ```bash
-cd 05_Python接口自动化/pytest_api_demo
+cd 05_Python接口自动化/03_完整项目/pytest_api_demo
 pip install -r requirements.txt
 ```
 
 ### 运行 requests 脚本
 
 ```bash
-cd 05_Python接口自动化/python_requests_api_learning/01_basic_requests
+cd 05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests
 python 01_get_no_params.py
 ```
 
 ### 运行 pytest 用例
 
 ```bash
-cd 05_Python接口自动化/python_requests_api_learning/03_pytest_api_cases
+cd 05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases
 pytest -q
 ```
 
@@ -199,7 +203,7 @@ pytest -q --html=report.html --self-contained-html
 ### 运行标准 pytest demo
 
 ```bash
-cd 05_Python接口自动化/pytest_api_demo
+cd 05_Python接口自动化/03_完整项目/pytest_api_demo
 pytest
 ```
 
@@ -234,3 +238,5 @@ pytest --alluredir=allure-results
 - 图片报告可直接预览，例如 `.png`、`.jpeg` 文件。
 - HTML 报告建议下载到本地后用浏览器打开。
 - Apifox JSON 文件可导入 Apifox 查看完整接口项目。
+
+
