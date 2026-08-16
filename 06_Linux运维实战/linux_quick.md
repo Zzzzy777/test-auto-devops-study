@@ -138,10 +138,15 @@ tar -zxvf demo.tar.gz
 
 ### 六、权限命令
 ```bash
-# 压缩
-tar -zcvf demo.tar.gz demo_folder
-# 解压
-tar -zxvf demo.tar.gz
+# 修改文件权限
+chmod 755 test.txt
+
+# 修改文件所属用户
+chown ubuntu:ubuntu test.txt
+
+# -R 递归，对文件夹内部全部文件生效
+chmod -R 777 mydir
+chown -R ubuntu:ubuntu mydir
 ```
 
 ### 七、管道 | 非常重要
