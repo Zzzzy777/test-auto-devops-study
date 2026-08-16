@@ -157,6 +157,8 @@ test-auto-devops-study/
 | 文件 | 说明 |
 | --- | --- |
 | [pytest_api_demo README](./05_Python接口自动化/pytest_api_demo/README.md) | demo 项目说明、运行命令、报告生成方式 |
+| [测试报告与截图说明](./05_Python接口自动化/pytest_api_demo/docs/测试报告与截图说明.md) | pytest 执行结果、pytest-html 报告、Allure 报告截图说明 |
+| [pytest-html 报告](./05_Python接口自动化/pytest_api_demo/docs/reports/pytest_api_demo_report.html) | 可下载后用浏览器打开的 HTML 测试报告 |
 | [requirements.txt](./05_Python接口自动化/pytest_api_demo/requirements.txt) | 项目依赖 |
 | [pytest.ini](./05_Python接口自动化/pytest_api_demo/pytest.ini) | pytest 用例发现和执行配置 |
 | [conftest.py](./05_Python接口自动化/pytest_api_demo/conftest.py) | 公共 fixture、base_url、session、token 复用 |

@@ -12,6 +12,10 @@ pytest_api_demo/
 ├── README.md                # 项目说明
 ├── common/
 │   └── logger.py            # 简单日志工具
+├── docs/
+│   ├── images/              # 测试执行截图和 Allure 截图
+│   ├── reports/             # 可下载查看的 pytest-html 报告
+│   └── 测试报告与截图说明.md
 └── test_cases/
     ├── test_01_basic_api.py       # GET / POST 基础请求
     ├── test_02_headers_cookie.py  # 请求头和 Cookie 断言
@@ -51,6 +55,10 @@ pytest
 pytest --html=reports/report.html --self-contained-html
 ```
 
+本项目已归档一份 pytest-html 报告，可下载后用浏览器打开：
+
+[pytest_api_demo_report.html](./docs/reports/pytest_api_demo_report.html)
+
 ## 生成 Allure 报告
 
 先生成 Allure 原始结果：
@@ -70,6 +78,30 @@ allure generate allure-results -o allure-report --clean
 ```bash
 allure open allure-report
 ```
+
+## 测试报告截图
+
+### pytest 终端执行结果
+
+![pytest 终端执行结果](./docs/images/01_pytest_terminal_10_passed.png)
+
+### pytest-html 报告摘要
+
+![pytest-html 报告摘要](./docs/images/02_pytest_html_report_summary.png)
+
+### Allure 报告总览
+
+![Allure 报告总览](./docs/images/03_allure_report_overview.png)
+
+### Allure Suites 分类
+
+![Allure Suites 分类](./docs/images/04_allure_suites_summary.png)
+
+### Token 鉴权用例详情
+
+![Token 鉴权用例详情](./docs/images/05_allure_token_case_detail.png)
+
+更详细的截图说明见：[测试报告与截图说明](./docs/测试报告与截图说明.md)。
 
 ## 测试环境说明
 
@@ -93,4 +125,3 @@ pytest
 面试时可以这样表达：
 
 > 我用 pytest + requests 做了一个接口自动化 demo，包含 GET/POST、请求参数、请求头、Cookie、Token fixture 复用、异常场景断言，并能生成 pytest-html 和 Allure 报告。项目里用 `conftest.py` 管理公共 fixture，用 `pytest.ini` 管理执行规则，依赖写在 `requirements.txt` 中，方便别人复现。
-
