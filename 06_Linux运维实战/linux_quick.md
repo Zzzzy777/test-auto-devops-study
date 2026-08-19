@@ -75,7 +75,7 @@ ls -la      # 包含隐藏文件
 # 切换目录
 cd /home
 cd ..       # 返回上一级
-cd ~        # 回到家目录
+cd ~        # 回到家目录 
 
 # 创建文件夹
 mkdir test_demo
