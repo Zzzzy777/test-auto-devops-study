@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('拉取代码') {
             steps {
-                git url: 'https://gitee.com/zzzzy7/test-auto-devops-study.git', branch: 'main'
+                git url: 'shturl.cc/iNakQr7Lq3cO58dJ4BN9THlLsBfyhASPRM1r0tzNm', branch: 'main'
             }
         }
         stage('安装依赖') {
@@ -18,7 +18,7 @@ pipeline {
         }
         stage('生成Allure测试报告') {
             steps {
-                allure generate allure-results --clean
+                bat 'allure generate allure-results --clean'
             }
         }
     }
