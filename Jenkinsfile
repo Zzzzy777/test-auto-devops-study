@@ -8,7 +8,7 @@ pipeline {
         }
         stage('执行自动化接口测试') {
             steps {
-                bat 'pytest ./test_case/ --alluredir=allure-results'
+                bat 'pytest ./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/ --alluredir=allure-results'
             }
         }
     }
