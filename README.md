@@ -13,6 +13,7 @@ test-auto-devops-study/
 ├── 05_Python接口自动化/          # Python、requests、pytest、自动化代码
 ├── 06_Linux运维实战              # Linux、JMeter、Tomcat 相关基础知识
 ├── 07_Jenkins_CI接口自动化流水线  # Jenkins、CI接口自动化
+├── api_auto_ci_demo
 ├── README.md
 └── .gitattributes
 ```
@@ -261,3 +262,12 @@ pytest test_cases/ --alluredir=allure-results
 # 本地预览allure报告
 allure serve allure-results
 ```
+
+### api_auto_ci_demo
+
+#### 📌 项目成果
+- 自动化用例覆盖 **10个核心接口**，包含 **7类正反测试场景**：
+  - 正常业务：GET参数请求、POST‑JSON、POST表单、自定义Header、Cookie传递、Token鉴权
+  - 异常负向场景：缺失鉴权头、404资源不存在、接口超时捕获
+- 接入 Jenkins CI 流水线，实现一键批量自动化回归，显著缩减手工回归测试工作量，自动生成 Allure 可视化测试报告，便于快速定位失败用例。
+- 测试脚本、实操截图、踩坑复盘文档全部归档，目录规范，可直接复用。
