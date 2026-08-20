@@ -11,22 +11,11 @@ test-auto-devops-study/
 ├── 03_HTTP协议与接口调试/        # HTTP 协议、抓包、接口调试记录
 ├── 04_Apifox接口测试/            # Apifox 笔记、JSON 项目、自动化测试报告
 ├── 05_Python接口自动化/          # Python、requests、pytest、自动化代码
-├── 第一周复盘.md
-├── 第二周复盘.md
+├── 06_Linux运维实战              # Linux、JMeter、Tomcat 相关基础知识
+├── 07_Jenkins_CI接口自动化流水线  # Jenkins、CI接口自动化
 ├── README.md
 └── .gitattributes
 ```
-
-## 学习路线
-
-建议按这个顺序学习：
-
-1. [软件测试基础](#1-软件测试基础)：先理解测试流程、测试分类、质量模型和用例编写。
-2. [缺陷管理](#2-缺陷管理)：掌握 Bug 生命周期、缺陷提交规范和禅道实操。
-3. [HTTP 协议与接口调试](#3-http-协议与接口调试)：理解请求响应、状态码、报文结构和抓包排查。
-4. [Apifox 接口测试](#4-apifox-接口测试)：练习接口调试、断言、鉴权、接口关联和自动化场景。
-5. [Python 接口自动化](#5-python-接口自动化)：使用 `requests` 编写接口脚本，再用 `pytest` 管理自动化用例。
-6. [阶段复盘](#阶段复盘)：按周整理完成内容、实操产出、踩坑和后续补强。
 
 ## 内容导航
 
@@ -231,3 +220,44 @@ pytest --alluredir=allure-results
 - 图片报告可直接预览，例如 `.png`、`.jpeg` 文件。
 - HTML 报告建议下载到本地后用浏览器打开。
 - Apifox JSON 文件可导入 Apifox 查看完整接口项目。
+
+### 6. Linux运维实战
+| 文件 | 内容说明 |
+| ---- | ---- |
+| [静态IP配置文档](./06_Linux运维实战/静态IP配置文档.md) | Ubuntu配置静态IP，实现Xshell稳定远程连接实操 |
+| [linux_quick.md](./06_Linux运维实战/linux_quick.md) | Linux高频命令速查表，文件、进程、端口检索常用指令 |
+| [日志查看与服务管理.md](./06_Linux运维实战/日志查看与服务管理.md) | tail/grep过滤日志、systemctl启停管理服务，基础故障定位 |
+| [权限、防火墙.md](./06_Linux运维实战/权限、防火墙.md) | chmod/chown文件权限修改、ufw防火墙端口放行实操 |
+| [Shell 基础语法.md](./06_Linux运维实战/Shell基础语法.md) | shell变量、if判断、for循环基础语法，简易脚本编写 |
+| [简易服务巡检脚本.md](./06_Linux运维实战/简易服务巡检脚本.md) | 实战shell脚本，检测服务存活，输出异常告警 |
+| [网络排查 - ping-telnet 端口不通排查流程.md](./06_Linux运维实战/网络排查-ping-telnet端口不通排查流程.md) | 网络连通性、端口访问故障完整排查流程 |
+| [Linux常见故障排查手册.md](./06_Linux运维实战/Linux常见故障排查手册.md) | 模拟端口占用、服务启动失败等故障，独立定位修复 |
+| [Tomcat10部署.md](./06_Linux运维实战/Tomcat10部署.md) | Linux下Tomcat服务部署、启停与访问调试 |
+| [MySQL基础CRUD与多表查询.md](./06_Linux运维实战/MySQL基础CRUD与多表查询.md) | MySQL建库建表、增删改查、多表联合查询实操 |
+| [MySQL备份与恢复（mysqldump）.md](./06_Linux运维实战/MySQL备份与恢复（mysqldump）.md) | mysqldump实现数据库备份、数据回滚实操 |
+| [JMeter 接口压测实操.md](./06_Linux运维实战/JMeter接口压测实操.md) | JMeter接口压测脚本编写，基础压测配置 |
+| [压测指标看懂与简易压测结果报告.md](./06_Linux运维实战/压测指标看懂与简易压测结果报告.md) | 压测核心指标解读，压测报告整理规范 |
+
+### 7. Jenkins_CI接口自动化流水线
+| 文件 | 内容 |
+| --- | --- |
+| [Jenkins‑Pytest‑Allure CI接口自动化流水线](./07_Jenkins_CI接口自动化流水线/07_Jenkins‑Pytest‑AllureCI接口自动化流水线.md) | Jenkins流水线搭建完整实操笔记，Windows环境部署，Pipeline as Code |
+
+#### CI流水线项目说明
+> 完整可运行CI项目：api_auto_ci_demo
+- 技术栈：Jenkins + Git + Python + Pytest + Allure
+- 实现流程：Jenkins拉取GitHub源码 → 安装Python依赖 → 执行接口自动化用例 → 自动生成Allure可视化报告
+- 踩坑记录：Windows中文目录乱码问题、pytest返回码、Allure报告预览问题
+- 用例覆盖：正常接口请求、Header/Cookie、Token鉴权、404/超时等负向异常场景
+
+## 本地运行 Jenkins CI项目
+```bash
+# 进入CI项目目录
+cd api_auto_ci_demo
+# 安装依赖
+pip install -r requirements.txt
+# 执行用例，生成allure原始结果
+pytest test_cases/ --alluredir=allure-results
+# 本地预览allure报告
+allure serve allure-results
+```
