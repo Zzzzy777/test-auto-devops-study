@@ -1,12 +1,12 @@
 pipeline {
     agent any
     stages {
-        stage('拉取GitHub源码') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        stage('安装Python依赖') {
+        stage('Install Dependencies') {
             steps {
                 bat '''
                     python -V
@@ -14,10 +14,10 @@ pipeline {
                 '''
             }
         }
-        stage('执行自动化接口测试') {
+        stage('Run Tests') {
             steps {
                 bat '''
-                    cd api_auto_ci_demo
+                    cd /d api_auto_ci_demo
                     pytest test_cases/ --alluredir=../allure-results
                 '''
             }

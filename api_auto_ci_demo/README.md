@@ -1,6 +1,29 @@
-﻿# pytest_api_demo 接口自动化项目
+# pytest_api_demo 接口自动化项目
 
-> 这是一个面向运维测试学习阶段的轻量级 pytest 接口自动化 demo，重点练习 `requests`、断言、fixture、Token 复用、请求头/Cookie 校验、异常场景和测试报告生成。
+> 这是一个面向运维测试学习阶段的轻量级 pytest 接口自动化 demo，重点练习 `requests`、断言、fixture、Token 复用、请求头 / Cookie 校验、异常场景和测试报告生成。
+
+## 项目定位
+
+这个项目适合在面试里作为“完整闭环”来讲：
+
+1. 先用 `requests` 完成接口调试。
+2. 再把脚本改造成 `pytest` 用例。
+3. 通过 `conftest.py` 复用 `session` 和 `token`。
+4. 最后输出 `pytest-html` 和 `Allure` 报告。
+
+## 覆盖内容
+
+- GET 无参 / 带参数请求
+- POST 表单 / JSON 请求体
+- 状态码断言
+- 返回字段断言
+- 请求头断言
+- Cookie 断言
+- `pytest.fixture` 前置准备
+- 全局 Token 复用
+- 异常状态码校验
+- 简单日志输出
+- HTML / Allure 报告生成
 
 ## 项目结构
 
@@ -14,7 +37,7 @@ pytest_api_demo/
 │   └── logger.py            # 简单日志工具
 ├── docs/
 │   ├── images/              # 测试执行截图和 Allure 截图
-│   ├── reports/             # 可下载查看的 pytest-html 报告
+│   ├── html_reports/        # 归档的 pytest-html 报告
 │   └── 测试报告与截图说明.md
 └── test_cases/
     ├── test_01_basic_api.py       # GET / POST 基础请求
@@ -23,19 +46,12 @@ pytest_api_demo/
     └── test_04_negative_cases.py  # 异常场景与错误响应
 ```
 
-## 覆盖知识点
+## 面试时重点讲
 
-- GET 无参 / 带参数请求
-- POST 表单 / JSON 请求体
-- 状态码断言
-- 返回字段断言
-- 请求头断言
-- Cookie 断言
-- `pytest.fixture` 前置准备
-- 全局 Token 复用
-- 异常状态码校验
-- 简单日志输出
-- HTML / Allure 报告生成
+- `conftest.py` 里用 `session` 级别 fixture 管理 `requests.Session()` 和 `api_token`，减少重复登录和重复建连。
+- `pytest.ini` 里统一了用例发现规则、日志输出和 marker。
+- `test_cases` 里既有正向请求，也有异常场景，能说明你不是只会跑通 happy path。
+- 用例上加了 `allure.feature`、`allure.story` 和 `allure.title`，报告可读性更好。
 
 ## 安装依赖
 
@@ -101,9 +117,9 @@ allure open allure-report
 
 ![Token 鉴权用例详情](./docs/images/05_allure_token_case_detail.png)
 
-更详细的截图说明见：[测试报告与截图说明](./docs/测试报告与截图说明.md)。
+更多说明见：[测试报告与截图说明](./docs/测试报告与截图说明.md)。
 
-## 测试环境说明
+## 测试环境
 
 默认请求地址：
 
@@ -111,18 +127,19 @@ allure open allure-report
 https://httpbin.ceshiren.com
 ```
 
-也可以通过环境变量覆盖：
+也可以通过环境变量或命令行参数覆盖：
 
 ```bash
 set API_BASE_URL=https://httpbin.ceshiren.com
 pytest
 ```
 
-## 学习重点
+或者：
 
-这个 demo 不追求复杂框架封装，重点是把计划表中 8.14-8.19 的内容整合成一个可运行、可复盘、可上传 GitHub 展示的小项目。
+```bash
+pytest --base-url=https://httpbin.ceshiren.com
+```
 
-面试时可以这样表达：
+## 可直接复述的面试话术
 
-> 我用 pytest + requests 做了一个接口自动化 demo，包含 GET/POST、请求参数、请求头、Cookie、Token fixture 复用、异常场景断言，并能生成 pytest-html 和 Allure 报告。项目里用 `conftest.py` 管理公共 fixture，用 `pytest.ini` 管理执行规则，依赖写在 `requirements.txt` 中，方便别人复现。
-
+> 我做了一个 pytest + requests 的接口自动化 demo，覆盖 GET/POST、请求参数、请求头、Cookie、Token fixture 复用、异常场景断言，并能生成 pytest-html 和 Allure 报告。项目里用 `conftest.py` 管理公共 fixture，用 `pytest.ini` 统一执行规则，依赖写在 `requirements.txt` 中，方便别人复现。
