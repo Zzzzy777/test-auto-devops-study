@@ -30,13 +30,6 @@ test-auto-devops-study/
 
 ## 内容导航
 
-### 阶段复盘
-
-| 文件 | 内容 |
-| --- | --- |
-| [第一周复盘](./第一周复盘.md) | 8.6-8.12 测试基础、用例设计、接口测试、HTTP 抓包和 Apifox 自动化复盘 |
-| [第二周复盘](./第二周复盘.md) | 8.13-8.19 禅道、Python、requests、pytest、fixture、Allure 和 demo 项目复盘 |
-
 ### 1. 软件测试基础
 
 | 文件 | 内容 |
@@ -238,5 +231,3 @@ pytest --alluredir=allure-results
 - 图片报告可直接预览，例如 `.png`、`.jpeg` 文件。
 - HTML 报告建议下载到本地后用浏览器打开。
 - Apifox JSON 文件可导入 Apifox 查看完整接口项目。
-
-
