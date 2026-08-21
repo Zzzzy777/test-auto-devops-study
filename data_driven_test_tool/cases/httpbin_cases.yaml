@@ -1,0 +1,55 @@
+# 公开 jsonplaceholder 接口用例
+# 最后一条故意断言错误，用于验证失败统计、看板标红
+config:
+  base_url: https://jsonplaceholder.typicode.com
+  timeout: 20
+
+cases:
+  - name: GET 获取单条帖子
+    method: GET
+    path: /posts/1
+    assert:
+      status_code: 200
+      json_equals:
+        userId: 1
+        id: 1
+
+  - name: GET 获取帖子列表
+    method: GET
+    path: /posts
+    assert:
+      status_code: 200
+
+  - name: POST 创建帖子
+    method: POST
+    path: /posts
+    json:
+      userId: 99
+      title: "自动化测试标题"
+      body: "自动化测试内容"
+    assert:
+      status_code: 201
+      json_equals:
+        userId: 99
+
+  - name: PUT 修改帖子
+    method: PUT
+    path: /posts/1
+    json:
+      title: "更新后的标题"
+    assert:
+      status_code: 200
+
+  - name: GET 获取单条评论
+    method: GET
+    path: /comments/2
+    assert:
+      status_code: 200
+      json_equals:
+        id: 2
+
+  - name: 故意失败的状态码断言
+    method: GET
+    path: /posts/1
+    assert:
+      status_code: 999

@@ -1,0 +1,9 @@
+# Python 缓存与虚拟环境
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 生成的测试报告
+reports/*.html
+!reports/.gitkeep

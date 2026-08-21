@@ -13,7 +13,9 @@ test-auto-devops-study/
 ├── 05_Python接口自动化/          # Python、requests、pytest、自动化代码
 ├── 06_Linux运维实战              # Linux、JMeter、Tomcat 相关基础知识
 ├── 07_Jenkins_CI接口自动化流水线  # Jenkins、CI接口自动化
-├── api_auto_ci_demo
+├── 08_cursor学习实操              # Cursor AI 编辑器辅助开发
+├── api_auto_ci_demo              # 基于Pytest+Allure+Jenkins 的接口自动化持续集成项目
+├── data_driven_test_tool         # AI 辅助‑YAML 数据驱动接口自动化测试小工具
 ├── README.md
 └── .gitattributes
 ```
@@ -271,3 +273,12 @@ allure serve allure-results
   - 异常负向场景：缺失鉴权头、404资源不存在、接口超时捕获
 - 接入 Jenkins CI 流水线，实现一键批量自动化回归，显著缩减手工回归测试工作量，自动生成 Allure 可视化测试报告，便于快速定位失败用例。
 - 测试脚本、实操截图、踩坑复盘文档全部归档，目录规范，可直接复用。
+
+
+### data_driven_test_tool 
+#### 📌项目成果
+- AI辅助开发轻量YAML数据驱动接口自动化工具，用例与代码解耦，支持GET/POST/PUT多种请求方式，覆盖正常业务、异常报错多类场景：
+  - 正常业务：接口状态码校验、JSON响应字段断言
+  - 异常负向场景：第三方服务503不可用、接口404路径错误、yaml语法异常、网络异常捕获
+- 基于Cursor完成辅助开发，自主负责需求拆解、代码调试、问题排查与功能验证；新增打印完整请求URL，优化接口报错排查效率，通过Jinja2渲染生成HTML可视化测试看板报告。
+- 解决公共测试服务不稳定、接口切换后批量404等真实问题，源码、YAML用例、运行截图、踩坑复盘笔记完整归档。

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>接口测试质量看板</title>
+  <style>
+    /* 本地静态看板样式，打开 HTML 即可查看，无需启动服务 */
+    body { font-family: "Microsoft YaHei", sans-serif; margin: 0; background: #f4f6f8; color: #1f2a37; }
+    .wrap { max-width: 1100px; margin: 32px auto; padding: 0 16px 48px; }
+    h1 { margin: 0 0 8px; font-size: 26px; }
+    .sub { color: #667085; margin-bottom: 24px; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 10px; padding: 16px 20px; min-width: 140px; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+    .card .label { color: #667085; font-size: 13px; }
+    .card .value { font-size: 28px; font-weight: 700; margin-top: 6px; }
+    .ok { color: #079455; }
+    .bad { color: #d92d20; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eaecf0; vertical-align: top; font-size: 13px; }
+    th { background: #f9fafb; color: #475467; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+    .tag-ok { background: #ecfdf3; color: #067647; }
+    .tag-bad { background: #fef3f2; color: #b42318; }
+    .fail { color: #b42318; margin: 0; }
+    .preview { max-width: 280px; color: #667085; word-break: break-all; }
+    .bar { height: 10px; background: #eaecf0; border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .bar > span { display: block; height: 100%; background: #079455; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>接口测试质量看板</h1>
+    <div class="sub">
+      用例文件：{{ summary.source }} ｜ 被测地址：{{ summary.base_url }} ｜
+      开始 {{ summary.started_at }} ｜ 结束 {{ summary.finished_at }} ｜ 耗时 {{ summary.duration_ms }} ms
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="label">总用例</div>
+        <div class="value">{{ summary.total }}</div>
+      </div>
+      <div class="card">
+        <div class="label">成功</div>
+        <div class="value ok">{{ summary.passed }}</div>
+      </div>
+      <div class="card">
+        <div class="label">失败</div>
+        <div class="value bad">{{ summary.failed }}</div>
+      </div>
+      <div class="card">
+        <div class="label">通过率</div>
+        <div class="value">{{ summary.pass_rate }}%</div>
+        <div class="bar"><span style="width: {{ summary.pass_rate }}%"></span></div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>结果</th>
+          <th>方法</th>
+          <th>用例名称</th>
+          <th>URL</th>
+          <th>HTTP</th>
+          <th>耗时</th>
+          <th>断言说明</th>
+          <th>响应预览</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in summary.records %}
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>
+            {% if item.ok %}
+              <span class="tag tag-ok">成功</span>
+            {% else %}
+              <span class="tag tag-bad">失败</span>
+            {% endif %}
+          </td>
+          <td>{{ item.method }}</td>
+          <td>{{ item.name }}</td>
+          <td class="preview">{{ item.url }}</td>
+          <td>{{ item.status_code }}</td>
+          <td>{{ item.elapsed_ms }} ms</td>
+          <td>
+            {% if item.failures %}
+              {% for msg in item.failures %}
+                <p class="fail">{{ msg }}</p>
+              {% endfor %}
+            {% else %}
+              断言通过
+            {% endif %}
+          </td>
+          <td class="preview">{{ item.body_preview }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
