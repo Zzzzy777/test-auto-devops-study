@@ -1,284 +1,98 @@
-﻿# test-auto-devops-study 运维测试学习仓库
+# test-auto-devops-study
 
-> 面向秋招与日常练习的运维测试学习资料库，覆盖软件测试基础、接口测试、缺陷管理、HTTP 抓包、Apifox 实操、Python requests 与 pytest 接口自动化。
+这是我的运维测试与接口自动化学习仓库，主要面向秋招复习和项目展示。仓库里分成两类内容：
+
+- 学习笔记：测试基础、HTTP、Apifox、Python、Linux、Jenkins、Docker
+- 项目实战：接口自动化持续集成框架、YAML 数据驱动工具
+
+## 秋招优先看
+
+| 目录 | 作用 |
+| --- | --- |
+| [api_auto_ci_demo](./api_auto_ci_demo/) | 重点展示项目，Pytest + Allure + Jenkins 接口自动化持续集成框架 |
+| [data_driven_test_tool](./data_driven_test_tool/) | 次重点项目，YAML 数据驱动接口自动化工具 |
+| [05_Python接口自动化](./05_Python接口自动化/) | Python、requests、pytest、fixture、Allure 学习与实操 |
+| [06_Linux运维实战](./06_Linux运维实战/) | Linux 命令、日志排查、Shell、MySQL、JMeter、Tomcat |
+| [07_Jenkins_CI接口自动化流水线](./07_Jenkins_CI接口自动化流水线/) | Jenkins 流水线与 CI 实操笔记 |
 
 ## 仓库结构
 
 ```text
 test-auto-devops-study/
-├── 01_软件测试基础/             # 测试流程、用例设计、基础测试用例
-├── 02_缺陷管理/                 # Bug 生命周期、禅道实训、接口缺陷练习
-├── 03_HTTP协议与接口调试/        # HTTP 协议、抓包、接口调试记录
-├── 04_Apifox接口测试/            # Apifox 笔记、JSON 项目、自动化测试报告
-├── 05_Python接口自动化/          # Python、requests、pytest、自动化代码
-├── 06_Linux运维实战              # Linux、JMeter、Tomcat 相关基础知识
-├── 07_Jenkins_CI接口自动化流水线  # Jenkins、CI接口自动化
-├── 08_cursor学习实操              # Cursor AI 编辑器辅助开发
-├── api_auto_ci_demo              # 基于Pytest+Allure+Jenkins 的接口自动化持续集成项目
-├── data_driven_test_tool         # AI 辅助‑YAML 数据驱动接口自动化测试小工具
-├── README.md
-└── .gitattributes
+├── 01_软件测试基础/
+├── 02_缺陷管理/
+├── 03_HTTP协议与接口调试/
+├── 04_Apifox接口测试/
+├── 05_Python接口自动化/
+├── 06_Linux运维实战/
+├── 07_Jenkins_CI接口自动化流水线/
+├── 08_cursor学习实操/
+├── 09_playwright学习了解/
+├── 10_Docker/
+├── api_auto_ci_demo/
+├── data_driven_test_tool/
+└── README.md
 ```
 
-## 内容导航
+## 重点项目
 
-### 1. 软件测试基础
+### 1. `api_auto_ci_demo`
 
-| 文件 | 内容 |
-| --- | --- |
-| [软件测试全流程笔记](./01_软件测试基础/软件测试全流程笔记.md) | 软件测试基础、测试分类、质量模型、测试流程、用例基础、缺陷基础 |
-| [用例设计思路总结](./01_软件测试基础/用例设计思路总结.md) | 等价类划分、边界值分析、判定表、场景法、错误推测法、组合策略 |
-| [登录注册查询测试用例](./01_软件测试基础/登录注册查询测试用例.md) | 登录、注册、查询模块的测试用例设计 |
-| [接口测试用例](./01_软件测试基础/接口测试用例.md) | 用户登录、用户注册接口测试用例集合 |
+这是我秋招主推的接口自动化项目，项目口径统一为：
 
-### 2. 缺陷管理
+- 4 个正式测试模块
+- 10 条自动化用例
+- 7 类正反场景
+- 6 个核心接口
 
-| 文件 | 内容 |
-| --- | --- |
-| [bug缺陷管理笔记](./02_缺陷管理/bug缺陷管理笔记.md) | Bug 生命周期、缺陷状态、禅道格式缺陷案例 |
-| [禅道缺陷管理实训笔记](./02_缺陷管理/禅道缺陷管理实训笔记.md) | 禅道部署流程、提 Bug 操作、接口 Bug 清单、字段规范 |
-| [接口缺陷实战练习](./02_缺陷管理/接口缺陷实战练习.md) | Token 为空、越权访问、空用户名等接口缺陷练习 |
+项目覆盖 GET、POST、请求头、Cookie、Token 鉴权、404、超时等常见接口测试场景，并串通了 `pytest`、`Allure`、`Jenkins`、`Docker` 的基础流程。
 
-### 3. HTTP 协议与接口调试
+入口文档：
 
-| 文件 | 内容 |
-| --- | --- |
-| [HTTP 协议与抓包实战](./03_HTTP协议与接口调试/HTTP%20协议与抓包实战.md) | HTTP 请求响应流程、状态码、报文结构、Token 鉴权、Fiddler 抓包与排查 |
-| [接口调试记录](./03_HTTP协议与接口调试/接口调试记录.md) | GET、POST、form-data、x-www-form-urlencoded、PUT、DELETE 接口调试记录 |
+- [项目说明](./api_auto_ci_demo/README.md)
+- [测试报告与截图说明](./api_auto_ci_demo/docs/测试报告与截图说明.md)
 
-### 4. Apifox 接口测试
+### 2. `data_driven_test_tool`
 
-| 文件 | 内容 |
-| --- | --- |
-| [Apifox接口测试操作手册](./04_Apifox接口测试/Apifox接口测试操作手册.md) | Apifox 界面、请求方法、Params、Headers、Body、状态码、响应解析、报错排查 |
-| [Apifox接口进阶](./04_Apifox接口测试/Apifox接口进阶.md) | Token、Session-Cookie、JWT、API-Key、接口关联、变量提取 |
-| [Apifox断言](./04_Apifox接口测试/Apifox断言.md) | 断言对象、断言条件、JSONPath、断言失败排查 |
-| [Apifox测试实操记录](./04_Apifox接口测试/Apifox测试实操记录.md) | 单接口调试、后置操作、Token 鉴权、登录异常场景实操 |
+这是补充项目，重点体现 YAML 数据驱动、接口封装和结果渲染能力，适合作为秋招中的第二项目。
 
-#### Apifox JSON 项目
+入口文档：
 
-| 文件 | 内容 |
-| --- | --- |
-| [7个简易接口调试.json](./04_Apifox接口测试/apifox_json/7个简易接口调试%20.json) | 基础接口调试项目 |
-| [Apifox接口自动化完整实训项目.json](./04_Apifox接口测试/apifox_json/Apifox接口自动化完整实训项目.json) | Apifox 自动化完整实训项目 |
-| [Apifox接口自动化实战(token自动传递).json](./04_Apifox接口测试/apifox_json/Apifox接口自动化实战%28token自动传递%29.json) | Token 自动传递接口自动化项目 |
-| [CSV 文件数据驱动.json](./04_Apifox接口测试/apifox_json/CSV%20文件数据驱动.json) | CSV 数据驱动项目 |
+- [项目说明](./data_driven_test_tool/README.md)
 
-#### Apifox 测试报告
+## 学习资料导航
 
-> GitHub 不能直接渲染 HTML 报告页面。查看 `.html` 报告时，建议下载到本地后用浏览器打开。
+### 基础能力
 
-| 文件 | 内容 |
-| --- | --- |
-| [01_登录 Token 自动传递自动化测试](./04_Apifox接口测试/apifox_report/01_登录%20Token%20自动传递自动化测试.md) | 登录鉴权 Token 自动传递实操记录 |
-| [01_单用例自动化测试报告_全通过.html](./04_Apifox接口测试/apifox_report/01_单用例自动化测试报告_全通过.html) | 单用例自动化测试 HTML 报告 |
-| [01_单用例自动化测试报告_全通过.jpeg](./04_Apifox接口测试/apifox_report/01_单用例自动化测试报告_全通过.jpeg) | 单用例报告截图 |
-| [02_多数据集数据驱动自动化测试](./04_Apifox接口测试/apifox_report/02_多数据集数据驱动自动化测试.md) | 多数据集数据驱动实操记录 |
-| [02_多数据集数据驱动自动化测试报告_含失败用例.html](./04_Apifox接口测试/apifox_report/02_多数据集数据驱动自动化测试报告_含失败用例.html) | 数据驱动 HTML 报告 |
-| [02_多数据集数据驱动自动化测试报告_含失败用例.png](./04_Apifox接口测试/apifox_report/02_多数据集数据驱动自动化测试报告_含失败用例.png) | 数据驱动报告截图 |
-| [03_用户 CRUD 完整流程自动化实战](./04_Apifox接口测试/apifox_report/03_用户%20CRUD%20完整流程自动化实战.md) | 用户 CRUD 完整流程自动化实战记录 |
-| [03_用户管理CRUD完整流程自动化测试报告_全部通过.html](./04_Apifox接口测试/apifox_report/03_用户管理CRUD完整流程自动化测试报告_全部通过.html) | 用户 CRUD HTML 报告 |
-| [03_用户管理CRUD完整流程自动化测试报告_全部通过.png](./04_Apifox接口测试/apifox_report/03_用户管理CRUD完整流程自动化测试报告_全部通过.png) | 用户 CRUD 报告截图 |
+- [01_软件测试基础](./01_软件测试基础/)
+- [02_缺陷管理](./02_缺陷管理/)
+- [03_HTTP协议与接口调试](./03_HTTP协议与接口调试/)
+- [04_Apifox接口测试](./04_Apifox接口测试/)
 
-### 5. Python 接口自动化
+### 编程与自动化
 
-| 文件 | 内容 |
-| --- | --- |
-| [Python接口自动化总览](./05_Python接口自动化/README.md) | 本目录导航，说明学习笔记、阶段练习、完整项目的区别 |
-| [python核心知识点](./05_Python接口自动化/01_学习笔记/python核心知识点.md) | 注释、运行模式、变量、数据类型、字符串、字典、模块导入、函数、循环、常见报错 |
-| [requests学习笔记](./05_Python接口自动化/01_学习笔记/requests学习笔记.md) | requests 安装、GET/POST 请求模板、响应数据提取、timeout、异常捕获、断言 |
-| [Pytest知识笔记](./05_Python接口自动化/01_学习笔记/Pytest知识笔记.md) | pytest 基础、用例识别规则、常用命令 |
-| [Pytest Fixture 学习笔记](./05_Python接口自动化/01_学习笔记/Pytest‑Fixture%20学习笔记.md) | fixture 前置准备、作用域、Token 复用 |
-| [Pytest + Allure 接口自动化](./05_Python接口自动化/01_学习笔记/Pytest+Allure%20接口自动化.md) | Allure 注解、报告生成、日志脚本和常见问题 |
+- [05_Python接口自动化](./05_Python接口自动化/)
+- [07_Jenkins_CI接口自动化流水线](./07_Jenkins_CI接口自动化流水线/)
 
-#### 代码目录
+### 运维与环境
 
-```text
-05_Python接口自动化/
-├── 01_学习笔记/
-├── 02_阶段练习/
-│   └── python_requests_api_learning/
-│       ├── 01_basic_requests/        # requests 基础请求练习
-│       ├── 02_assert_practice/       # requests + assert 断言练习
-│       ├── 03_pytest_api_cases/      # pytest 接口自动化用例与测试报告
-│       ├── 04_pytest_fixture_token/  # fixture 和 token 复用练习
-│       └── 05_allure_log_demo/       # Allure 报告和日志练习
-└── 03_完整项目/
-    └── pytest_api_demo/          # 标准 pytest 接口自动化 demo
-```
+- [06_Linux运维实战](./06_Linux运维实战/)
+- [10_Docker](./10_Docker/)
 
-#### requests 基础请求练习
+### 其他练习
 
-| 文件 | 练习点 |
-| --- | --- |
-| [01_get_no_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/01_get_no_params.py) | GET 无参请求 |
-| [02_get_with_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/02_get_with_params.py) | GET 携带 `params` 参数 |
-| [03_post_form.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/03_post_form.py) | POST 表单提交 |
-| [04_post_json_body.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests/04_post_json_body.py) | POST JSON 请求体提交 |
+- [08_cursor学习实操](./08_cursor学习实操/)
+- [09_playwright学习了解](./09_playwright学习了解/)
 
-#### requests 断言练习
+## 建议的复习顺序
 
-| 文件 | 练习点 |
-| --- | --- |
-| [01_get_no_params_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/01_get_no_params_assert.py) | GET 无参请求断言 |
-| [02_get_with_params_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/02_get_with_params_assert.py) | GET 参数断言 |
-| [03_post_form_data_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/03_post_form_data_assert.py) | POST 表单断言 |
-| [04_post_json_body_assert.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/02_assert_practice/04_post_json_body_assert.py) | POST JSON 断言 |
+1. 先看 `api_auto_ci_demo`
+2. 再看 `05_Python接口自动化`
+3. 然后补 `06_Linux运维实战` 和 `07_Jenkins_CI接口自动化流水线`
+4. 最后按需翻 `01~04` 的基础资料
 
-#### pytest 接口自动化用例
+## 仓库约定
 
-| 文件 | 练习点 |
-| --- | --- |
-| [test_01_get_no_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_01_get_no_params.py) | GET 无参接口自动化用例 |
-| [test_02_get_with_params.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_02_get_with_params.py) | GET 参数接口自动化用例 |
-| [test_03_post_form_data.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_03_post_form_data.py) | POST 表单接口自动化用例 |
-| [test_04_post_json_body.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_04_post_json_body.py) | POST JSON 接口自动化用例 |
-| [test_05_get_no_token.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_05_get_no_token.py) | 未携带 Token 异常场景 |
-| [test_06_post_form_wrong_pwd.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_06_post_form_wrong_pwd.py) | 表单密码错误异常场景 |
-| [test_07_post_json_empty_phone.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_07_post_json_empty_phone.py) | JSON 手机号为空异常场景 |
-| [test_08_get_timeout.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_08_get_timeout.py) | timeout 超时异常场景 |
-| [test_09_post_no_headers.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_09_post_no_headers.py) | 缺少请求头异常场景 |
-| [test_10_get_wrong_param.py](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/test_10_get_wrong_param.py) | 参数错误异常场景 |
-| [report.html](./05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases/report.html) | pytest HTML 测试报告 |
-
-#### 标准 pytest 接口自动化 demo
-
-| 文件 | 说明 |
-| --- | --- |
-| [pytest_api_demo README](./05_Python接口自动化/03_完整项目/pytest_api_demo/README.md) | demo 项目说明、运行命令、报告生成方式 |
-| [测试报告与截图说明](./05_Python接口自动化/03_完整项目/pytest_api_demo/docs/测试报告与截图说明.md) | pytest 执行结果、pytest-html 报告、Allure 报告截图说明 |
-| [pytest-html 报告](./05_Python接口自动化/03_完整项目/pytest_api_demo/docs/html_reports/pytest_api_demo_report.html) | 可下载后用浏览器打开的 HTML 测试报告 |
-| [requirements.txt](./05_Python接口自动化/03_完整项目/pytest_api_demo/requirements.txt) | 项目依赖 |
-| [pytest.ini](./05_Python接口自动化/03_完整项目/pytest_api_demo/pytest.ini) | pytest 用例发现和执行配置 |
-| [conftest.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/conftest.py) | 公共 fixture、base_url、session、token 复用 |
-| [test_01_basic_api.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_01_basic_api.py) | GET / POST 基础请求 |
-| [test_02_headers_cookie.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_02_headers_cookie.py) | 请求头和 Cookie 断言 |
-| [test_03_auth_token.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_03_auth_token.py) | Token fixture 复用 |
-| [test_04_negative_cases.py](./05_Python接口自动化/03_完整项目/pytest_api_demo/test_cases/test_04_negative_cases.py) | 404、鉴权缺失、超时异常场景 |
-
-## 本地运行 Python 接口自动化
-
-### 安装依赖
-
-```bash
-cd 05_Python接口自动化/03_完整项目/pytest_api_demo
-pip install -r requirements.txt
-```
-
-### 运行 requests 脚本
-
-```bash
-cd 05_Python接口自动化/02_阶段练习/python_requests_api_learning/01_basic_requests
-python 01_get_no_params.py
-```
-
-### 运行 pytest 用例
-
-```bash
-cd 05_Python接口自动化/02_阶段练习/python_requests_api_learning/03_pytest_api_cases
-pytest -q
-```
-
-生成 HTML 测试报告：
-
-```bash
-pytest -q --html=report.html --self-contained-html
-```
-
-### 运行标准 pytest demo
-
-```bash
-cd 05_Python接口自动化/03_完整项目/pytest_api_demo
-pytest
-```
-
-生成 pytest-html 报告：
-
-```bash
-pytest --html=reports/report.html --self-contained-html
-```
-
-生成 Allure 原始结果：
-
-```bash
-pytest --alluredir=allure-results
-```
-
-## 当前学习覆盖能力
-
-- 软件测试基础理论与完整测试流程
-- 测试用例设计方法与模块用例编写
-- 缺陷生命周期、Bug 提交规范与禅道实操
-- HTTP 请求响应、状态码、报文结构和抓包排查
-- Apifox 单接口调试、断言、鉴权、接口关联和自动化测试
-- Python 基础语法、requests 请求封装、异常捕获和响应解析
-- pytest 自动化用例编写、异常场景覆盖和 HTML 报告生成
-- fixture 管理公共前置条件，复用 Token
-- Allure 注解、日志输出和可视化报告生成
-- 标准 pytest demo 项目结构、依赖管理和执行配置
-
-## GitHub 查看说明
-
-- Markdown 文件可直接在 GitHub 页面阅读。
-- 图片报告可直接预览，例如 `.png`、`.jpeg` 文件。
-- HTML 报告建议下载到本地后用浏览器打开。
-- Apifox JSON 文件可导入 Apifox 查看完整接口项目。
-
-### 6. Linux运维实战
-| 文件 | 内容说明 |
-| ---- | ---- |
-| [静态IP配置文档](./06_Linux运维实战/静态IP配置文档.md) | Ubuntu配置静态IP，实现Xshell稳定远程连接实操 |
-| [linux_quick.md](./06_Linux运维实战/linux_quick.md) | Linux高频命令速查表，文件、进程、端口检索常用指令 |
-| [日志查看与服务管理.md](./06_Linux运维实战/日志查看与服务管理.md) | tail/grep过滤日志、systemctl启停管理服务，基础故障定位 |
-| [权限、防火墙.md](./06_Linux运维实战/权限、防火墙.md) | chmod/chown文件权限修改、ufw防火墙端口放行实操 |
-| [Shell 基础语法.md](./06_Linux运维实战/Shell基础语法.md) | shell变量、if判断、for循环基础语法，简易脚本编写 |
-| [简易服务巡检脚本.md](./06_Linux运维实战/简易服务巡检脚本.md) | 实战shell脚本，检测服务存活，输出异常告警 |
-| [网络排查 - ping-telnet 端口不通排查流程.md](./06_Linux运维实战/网络排查-ping-telnet端口不通排查流程.md) | 网络连通性、端口访问故障完整排查流程 |
-| [Linux常见故障排查手册.md](./06_Linux运维实战/Linux常见故障排查手册.md) | 模拟端口占用、服务启动失败等故障，独立定位修复 |
-| [Tomcat10部署.md](./06_Linux运维实战/Tomcat10部署.md) | Linux下Tomcat服务部署、启停与访问调试 |
-| [MySQL基础CRUD与多表查询.md](./06_Linux运维实战/MySQL基础CRUD与多表查询.md) | MySQL建库建表、增删改查、多表联合查询实操 |
-| [MySQL备份与恢复（mysqldump）.md](./06_Linux运维实战/MySQL备份与恢复（mysqldump）.md) | mysqldump实现数据库备份、数据回滚实操 |
-| [JMeter 接口压测实操.md](./06_Linux运维实战/JMeter接口压测实操.md) | JMeter接口压测脚本编写，基础压测配置 |
-| [压测指标看懂与简易压测结果报告.md](./06_Linux运维实战/压测指标看懂与简易压测结果报告.md) | 压测核心指标解读，压测报告整理规范 |
-
-### 7. Jenkins_CI接口自动化流水线
-| 文件 | 内容 |
-| --- | --- |
-| [Jenkins‑Pytest‑Allure CI接口自动化流水线](./07_Jenkins_CI接口自动化流水线/07_Jenkins‑Pytest‑AllureCI接口自动化流水线.md) | Jenkins流水线搭建完整实操笔记，Windows环境部署，Pipeline as Code |
-
-#### CI流水线项目说明
-> 完整可运行CI项目：api_auto_ci_demo
-- 技术栈：Jenkins + Git + Python + Pytest + Allure
-- 实现流程：Jenkins拉取GitHub源码 → 安装Python依赖 → 执行接口自动化用例 → 自动生成Allure可视化报告
-- 踩坑记录：Windows中文目录乱码问题、pytest返回码、Allure报告预览问题
-- 用例覆盖：正常接口请求、Header/Cookie、Token鉴权、404/超时等负向异常场景
-
-## 本地运行 Jenkins CI项目
-```bash
-# 进入CI项目目录
-cd api_auto_ci_demo
-# 安装依赖
-pip install -r requirements.txt
-# 执行用例，生成allure原始结果
-pytest test_cases/ --alluredir=allure-results
-# 本地预览allure报告
-allure serve allure-results
-```
-
-### api_auto_ci_demo
-
-#### 📌 项目成果
-- 自动化用例覆盖 **10个核心接口**，包含 **7类正反测试场景**：
-  - 正常业务：GET参数请求、POST‑JSON、POST表单、自定义Header、Cookie传递、Token鉴权
-  - 异常负向场景：缺失鉴权头、404资源不存在、接口超时捕获
-- 接入 Jenkins CI 流水线，实现一键批量自动化回归，显著缩减手工回归测试工作量，自动生成 Allure 可视化测试报告，便于快速定位失败用例。
-- 测试脚本、实操截图、踩坑复盘文档全部归档，目录规范，可直接复用。
-
-
-### data_driven_test_tool 
-#### 📌项目成果
-- AI辅助开发轻量YAML数据驱动接口自动化工具，用例与代码解耦，支持GET/POST/PUT多种请求方式，覆盖正常业务、异常报错多类场景：
-  - 正常业务：接口状态码校验、JSON响应字段断言
-  - 异常负向场景：第三方服务503不可用、接口404路径错误、yaml语法异常、网络异常捕获
-- 基于Cursor完成辅助开发，自主负责需求拆解、代码调试、问题排查与功能验证；新增打印完整请求URL，优化接口报错排查效率，通过Jinja2渲染生成HTML可视化测试看板报告。
-- 解决公共测试服务不稳定、接口切换后批量404等真实问题，源码、YAML用例、运行截图、踩坑复盘笔记完整归档。
+- `allure-results`、`allure-report`、`reports`、`logs`、`.pytest_cache`、`__pycache__` 这类内容属于临时产物
+- 面试展示优先看项目 README、报告截图和总结文档
+- 跟秋招无关的临时文件尽量不要堆在仓库首页

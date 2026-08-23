@@ -1,7 +1,9 @@
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
+*.pyo
 .pytest_cache/
+.ruff_cache/
 
 # Virtual environments
 .venv/
@@ -10,33 +12,17 @@ env/
 
 # Test outputs
 reports/
-logs/
 allure-results/
 allure-report/
-
-# Local editor files
-.idea/
-.vscode/
-
-# Python 全局缓存
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-
-# 所有测试运行产物
-allure-results/
-allure-report/
-reports/
 logs/
-*.html
 *.log
 
 # IDE
 .idea/
 .vscode/
 
-# 系统文件
+# OS files
 .DS_Store
 Thumbs.db
 desktop.ini
+
