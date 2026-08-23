@@ -1,12 +1,11 @@
-# test-auto-devops-study
+﻿# test-auto-devops-study
 
 这是我的运维测试与接口自动化学习仓库，主要面向秋招复习和项目展示。仓库里分成两类内容：
 
 - 学习笔记：测试基础、HTTP、Apifox、Python、Linux、Jenkins、Docker
 - 项目实战：接口自动化持续集成框架、YAML 数据驱动工具
 
-## 秋招优先看
-
+# 仓库重点
 | 目录 | 作用 |
 | --- | --- |
 | [api_auto_ci_demo](./api_auto_ci_demo/) | 重点展示项目，Pytest + Allure + Jenkins 接口自动化持续集成框架 |
@@ -83,13 +82,6 @@ test-auto-devops-study/
 
 - [08_cursor学习实操](./08_cursor学习实操/)
 - [09_playwright学习了解](./09_playwright学习了解/)
-
-## 建议的复习顺序
-
-1. 先看 `api_auto_ci_demo`
-2. 再看 `05_Python接口自动化`
-3. 然后补 `06_Linux运维实战` 和 `07_Jenkins_CI接口自动化流水线`
-4. 最后按需翻 `01~04` 的基础资料
 
 ## 仓库约定
 

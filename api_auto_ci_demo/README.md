@@ -51,7 +51,6 @@ api_auto_ci_demo/
 └── README.md                  # 项目说明
 ```
 
-## 面试时重点讲这几件事
 
 ### 1. `conftest.py`
 
@@ -132,6 +131,4 @@ allure serve allure-results
 pytest test_cases/ --base-url=https://httpbin.ceshiren.com
 ```
 
-## 简历表达建议
 
-> 我做了一个基于 Pytest + Requests + Allure + Jenkins 的接口自动化持续集成项目，覆盖 GET、POST、请求头、Cookie、Token 鉴权和异常场景。项目里通过 `conftest.py` 统一管理 `base_url`、`Session` 和 `Token` 复用，并能输出 pytest-html 和 Allure 报告，形成从脚本执行到报告展示的完整闭环。
