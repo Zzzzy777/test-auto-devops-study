@@ -32,7 +32,7 @@ pipeline {
                     // cd切换进入项目子文件夹
                     cd /d ruoyi_api_test
                     // -v：打印详细执行日志；--alluredir：原始报告输出到仓库根目录
-                    pytest test_case/ -v --alluredir=../allure-results
+                    pytest test_cases/ -v --alluredir=../allure-results
                 """
             }
         }
