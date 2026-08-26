@@ -1,6 +1,6 @@
-# import pytest
-# import requests
-# from config import BASE_URL,USENAME,PASSWORD
+import pytest
+from common_request import send_request
+from config import BASE_URL
 
 # @pytest.fixture(scope="session")
 # def headers_with_token():
@@ -38,3 +38,25 @@
 #     #yield：把headers返回给测试用例使用
 #     yield headers
 #     # yield后面可以写后置清理代码，这里不需要，留空
+
+# =====新增：数据清理夹具====
+@pytest.fixture
+def clean_test_user(scope="function"):
+    """自动清理测试账号 testauto01"""
+    # 前置清理
+    query_url = f"{BASE_URL}/system/user/list"
+    resp_before = send_request("GET", query_url, params={"userName": "testauto01"})
+    res_before = resp_before.json()
+    if len(res_before["rows"]) > 0:
+        user_id = res_before["rows"][0]["userId"]
+        send_request("DELETE", f"{BASE_URL}/system/user/{user_id}")
+
+    yield
+
+    # 后置清理，无论用例成败都会执行
+    resp_after = send_request("GET", query_url, params={"userName": "testauto01"})
+    res_after = resp_after.json()
+    if len(res_after["rows"]) > 0:
+        user_id = res_after["rows"][0]["userId"]
+        send_request("DELETE", f"{BASE_URL}/system/user/{user_id}")
+
