@@ -1,0 +1,49 @@
+// Jenkinsfile 流水线脚本，Windows环境
+// 项目结构：git仓库根目录下 ruoyi_api_test 子文件夹存放整套自动化代码
+pipeline {
+    // 使用任意可用agent执行流水线
+    agent any
+    stages {
+        // 阶段1：拉取git仓库代码
+        stage('拉取代码') {
+            steps {
+                // 拉取SCM配置的github仓库代码，流水线项目推荐使用，不用硬编码仓库地址
+                checkout scm
+            }
+        }
+
+        // 阶段2：安装python项目依赖包
+        stage('安装依赖') {
+            steps {
+                bat """
+                    python -V
+                    // cd切换进入项目子文件夹
+                    cd /d ruoyi_api_test
+                    // python -m pip 规避pip版本、环境变量问题
+                    python -m pip install -r requirements.txt
+                """
+            }
+        }
+
+        // 阶段3：执行pytest接口自动化测试用例，生成allure原始结果
+        stage('执行接口自动化测试') {
+            steps {
+                bat """
+                    // cd切换进入项目子文件夹
+                    cd /d ruoyi_api_test
+                    // -v：打印详细执行日志；--alluredir：原始报告输出到仓库根目录
+                    pytest test_case/ -v --alluredir=../allure-results
+                """
+            }
+        }
+    }
+
+    // post后置处理：流水线结束之后执行，解决原版脚本缺陷：用例失败就不生成报告
+    post {
+        // always：不管流水线成功、失败、异常中断，都会执行
+        always {
+            // 读取allure-results原始数据，生成可视化测试报告
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+        }
+    }
+}

@@ -1,0 +1,3 @@
+pytest>=7.4.0        # 测试框架，管理用例、执行、断言
+requests>=2.31.0     # http请求库，发接口请求
+allure-pytest>=2.13.0 # allure报告插件
