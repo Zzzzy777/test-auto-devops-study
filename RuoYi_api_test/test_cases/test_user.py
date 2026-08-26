@@ -28,6 +28,8 @@ class TestUserApi:
         assert "rows" in res
         assert "total" in res
 
+
+
     @allure.story("获取admin用户详情")
     # allure用例描述
     @allure.description("查询userId=1管理员详情，校验用户名称为admin")
@@ -44,3 +46,124 @@ class TestUserApi:
         assert res["code"] == 200
         #校验是否为admin
         assert res["data"]["userName"] == "admin"
+
+
+
+    @allure.story("新增系统用户")
+    @allure.description("正向场景：传入合法参数新增用户")
+    def test_add_user(self, clean_test_user):
+        url = f"{BASE_URL}/system/user"
+        body = {
+            "userName": "testauto01",
+            "nickName": "自动化测试账号",   # 必须加，昵称
+            "password": "123456",          # 必须加，密码
+            "deptId": 105
+        }
+        resp = send_request("POST",url,json=body)
+        # 打印后端返回内容，方便排错
+        print(f"状态码：{resp.status_code}")
+        print(f"返回报文：{resp.text}")
+    
+        assert resp.status_code == 200
+        res = resp.json()
+        assert res["code"] == 200
+
+
+
+
+    @allure.story("新增系统用户")
+    @allure.description("异常场景：用户名已存在，新增失败")
+    def test_add_user_dup_name(self):
+        url = f"{BASE_URL}/system/user"
+        body = {
+            "userName": "testauto01",
+            "nickName": "自动化测试账号",   # 必须加，昵称
+            "password": "123456",          # 必须加，密码
+            "deptId": 105
+        }
+        resp = send_request("POST",url,json=body) 
+        print(f"状态码：{resp.status_code}")
+        print(f"返回报文：{resp.text}")
+
+        assert resp.status_code == 200
+        res = resp.json()
+        print(f"接口完整返回:{res}") # ✅解析完再打印
+
+
+
+    @allure.story("编辑系统用户")
+    @allure.description("正向场景：新增测试用户后，修改用户昵称与邮箱")
+    def test_edit_user(self, clean_test_user):
+        # 1、先新增一个测试用户，作为编辑的测试数据
+        add_url = f"{BASE_URL}/system/user" # 拼接新增用户接口地址
+        add_body = {
+            "userName": "testauto01",
+            "nickName": "自动化测试账号",   # 必须加，昵称
+            "password": "123456",          # 必须加，密码
+            "deptId": 105
+        }
+        #执行新增并且断言
+        add_resp = send_request("POST", add_url, json=add_body)
+        add_res = add_resp.json()
+        assert add_resp.status_code == 200
+        assert add_res["code"] == 200
+
+        # 2、查询拿到刚刚新增用户的userId，编辑接口必须传入userId
+        query_resp = send_request("GET", f"{BASE_URL}/system/user/list", params={"userName":"testauto01"}) # 根据用户名过滤查询用户列表
+        query_res = query_resp.json()  # 将接口返回响应转为json字典
+        user_id = query_res["rows"][0]["userId"]  # 从返回列表取出第一条数据的用户ID
+
+        # 3、执行编辑操作，PUT请求完成用户信息修改
+        edit_url = f"{BASE_URL}/system/user"  # 编辑用户接口地址
+        edit_body = {                         # 编辑接口请求体，userId是必填项
+            "userId": user_id,
+            "userName": "testauto01",
+            "nickName": "修改后的测试账号",
+            "deptId": 105,
+            "email": "modify@test.com"
+        }
+        #执行编辑并且断言
+        resp = send_request("PUT", edit_url, json=edit_body) # 发送put编辑请求
+        res = resp.json() # 获取编辑接口返回json
+        print(f"状态码：{resp.status_code}")
+        print(f"返回报文：{resp.text}")
+        print(f"编辑接口返回:{res}") # 打印返回结果，方便排查问题
+
+        assert resp.status_code == 200 # 断言http状态码200，代表请求成功到达服务端
+        assert res["code"] == 200      # 断言业务返回码200，代表业务层面编辑成功
+
+
+
+    @allure.story("删除系统用户")
+    @allure.description("正向场景：新增用户，拿到id后执行删除")
+    def test_delete_user(self, clean_test_user):
+        # 1、先新增一个测试用户，作为编辑的测试数据
+        add_url = f"{BASE_URL}/system/user" # 拼接新增用户接口地址
+        add_body = {
+                "userName": "testauto01",
+                "nickName": "自动化测试账号",   # 必须加，昵称
+                "password": "123456",          # 必须加，密码
+                "deptId": 105
+        }
+        #执行新增并且断言
+        add_resp = send_request("POST", add_url, json=add_body)
+        add_res = add_resp.json()
+        assert add_resp.status_code == 200
+        assert add_res["code"] == 200
+        
+        # 2、查询拿到刚刚新增用户的userId，编辑接口必须传入userId
+        query_resp = send_request("GET", f"{BASE_URL}/system/user/list", params={"userName":"testauto01"}) # 根据用户名过滤查询用户列表
+        query_res = query_resp.json()  # 将接口返回响应转为json字典
+        user_id = query_res["rows"][0]["userId"]  # 从返回列表取出第一条数据的用户ID
+
+        # 3、执行删除，DELETE请求，id放在url路径中
+        del_url = f"{BASE_URL}/system/user/{user_id}"       # 拼接删除接口完整url，userId路径传参
+        resp = send_request("DELETE", del_url)              # 发送删除请求
+        res = resp.json()                                   # 获取删除接口返回json
+        print(f"状态码：{resp.status_code}")
+        print(f"返回报文：{resp.text}")
+        print(f"删除接口返回:{res}")                         # 打印返回报文，方便定位报错
+
+        assert resp.status_code == 200                      # 断言http状态码
+        assert res["code"] == 200                           # 断言业务码，确认删除业务执行成功
+
