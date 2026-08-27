@@ -15,6 +15,22 @@ class TestRoleApi:
         assert res["code"] == 200
         assert "rows" in res
 
+    @allure.story("角色菜单分配")
+    @allure.description("异常场景：给角色分配不存在的menuId，校验后端处理逻辑")
+    def test_role_assign_not_exist_menu(self):
+        url = f"{BASE_URL}/system/role/menu"
+        body = {
+            "roleId": 2,
+            "menuIds": [99999]   # 传入不存在菜单ID
+        }
+        resp = send_request("PUT", url, json=body)
+        print(f"状态码: {resp.status_code}")
+        print(f"返回报文: {resp.text}")
+    
+        assert resp.status_code == 200
+        res = resp.json()
+        print(f"接口完整返回:{res}")
+
 
 @allure.feature("角色管理模块")
 @allure.story("角色新增")
@@ -72,3 +88,5 @@ def test_role_add_assign_menu():
             assert del_resp.status_code == 200
             assert del_res["code"] == 200
             print("测试角色清理完成")
+
+

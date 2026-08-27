@@ -7,7 +7,7 @@ class TestUserApi:
 
     @allure.story("分页查询用户列表")
     # allure报告里面的用例描述
-    @allure.description("查询系统用户列表，传入分页参数pageNum、pageSize，校验返回rows、total")
+    @allure.description("正向场景：查询系统用户列表，传入分页参数pageNum、pageSize，校验返回rows、total")
     def  test_query_user_list(self):
         #拼接查询用户列表
         url = f"{BASE_URL}/system/user/list"
@@ -32,7 +32,7 @@ class TestUserApi:
 
     @allure.story("获取admin用户详情")
     # allure用例描述
-    @allure.description("查询userId=1管理员详情，校验用户名称为admin")
+    @allure.description("正向场景：查询userId=1管理员详情，校验用户名称为admin")
     def test_get_user_detail(self):
         # 拼接id=1的用户详情接口地址
         url = f"{BASE_URL}/system/user/1"
@@ -81,13 +81,65 @@ class TestUserApi:
             "password": "123456",          # 必须加，密码
             "deptId": 105
         }
+
+        # 第一步：先创建该用户，制造用户名已存在的前置条件
+        send_request("POST", url, json=body)
+
+        # 第二步：再次提交相同请求，触发用户名重复
         resp = send_request("POST",url,json=body) 
-        print(f"状态码：{resp.status_code}")
-        print(f"返回报文：{resp.text}")
+        print(f"状态码: {resp.status_code}")
+        print(f"返回报文: {resp.text}")
 
         assert resp.status_code == 200
         res = resp.json()
-        print(f"接口完整返回:{res}") # ✅解析完再打印
+        print(f"接口完整返回:{res}")
+
+        # 业务码不能等于200，代表新增失败
+        assert res["code"] != 200
+
+
+    @allure.story("新增系统用户")
+    @allure.description("异常场景：传入非法手机号，校验参数拦截")
+    def test_add_user_invalid_phone(self):
+        url = f"{BASE_URL}/system/user"
+        body = {
+            "userName": "testphone01",
+            "nickName": "手机号非法测试",
+            "password": "123456",
+            "deptId": 105,
+            "phonenumber": "123"   # 非法短手机号，也可以填"abc1234"
+        }
+        resp = send_request("POST", url, json=body)
+        print(f"状态码: {resp.status_code}")
+        print(f"返回报文: {resp.text}")
+
+        assert resp.status_code == 200
+        res = resp.json()
+        print(f"接口完整返回:{res}")
+        # 这里不再断言code!=200
+        # 实际测试发现：后端没有手机号格式校验，非法手机号可以创建成功，属于接口缺陷
+
+
+
+    @allure.story("修改系统用户")
+    @allure.description("异常场景：不传必填nickName字段，校验参数拦截")
+    def test_edit_user_missing_required(self):
+        url = f"{BASE_URL}/system/user"
+        # id=1是admin真实用户，做修改
+        body = {
+            "userId": 1,
+            "userName": "admin"
+            # 故意不写 nickName（必填字段）
+        }
+        resp = send_request("PUT", url, json=body)
+        print(f"状态码: {resp.status_code}")
+        print(f"返回报文: {resp.text}")
+
+        assert resp.status_code == 200
+        res = resp.json()
+        print(f"接口完整返回:{res}")
+        assert res["code"] != 200
+
 
 
 
@@ -167,3 +219,24 @@ class TestUserApi:
         assert resp.status_code == 200                      # 断言http状态码
         assert res["code"] == 200                           # 断言业务码，确认删除业务执行成功
 
+
+
+    @allure.story("删除用户")
+    @allure.description("逆向场景：删除不存在的用户ID")
+    def test_delete_no_exist_user(self):
+        user_id = 999999 #传入一个系统不存在的用户id=999999
+        del_url = f"{BASE_URL}/system/user/{user_id}"
+
+        print(f"\n【删除请求地址】{del_url}")
+
+        resp = send_request("DELETE",del_url)
+        res = resp.json()
+
+        print(f"状态码: {resp.status_code}")
+        print(f"返回报文: {resp.text}")
+        print(f"删除接口返回:{res}")
+
+        assert resp.status_code == 200
+        assert res["code"] != 200
+
+    

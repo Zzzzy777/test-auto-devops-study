@@ -46,3 +46,29 @@ class Testlogin:
         res = resp.json()
         #业务码不等于200，代表登录业务失败
         assert res["code"] != 200
+
+    @allure.story("登录失败-账号为空")
+    def test_login_username_empty(self):
+        """反向用例：账号传空字符串，登录失败"""
+        url = f"{BASE_URL}/login"
+        data = {
+            "username": "",
+            "password": "admin123"
+        }
+        resp = requests.post(url=url, json=data, timeout=10)
+        assert resp.status_code == 200
+        res = resp.json()
+        assert res["code"] != 200
+
+    @allure.story("登录失败-密码为空")
+    def test_login_pwd_empty(self):
+        """反向用例：密码传空字符串，登录失败"""
+        url = f"{BASE_URL}/login"
+        data = {
+            "username": "admin",
+            "password": ""
+        }
+        resp = requests.post(url=url, json=data, timeout=10)
+        assert resp.status_code == 200
+        res = resp.json()
+        assert res["code"] != 200
