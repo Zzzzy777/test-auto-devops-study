@@ -1,4 +1,4 @@
-# Python
+﻿# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -16,6 +16,8 @@ allure-results/
 allure-report/
 logs/
 *.log
+*.html
+!docs/html_reports/*.html
 
 # IDE
 .idea/
@@ -25,4 +27,3 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
-
