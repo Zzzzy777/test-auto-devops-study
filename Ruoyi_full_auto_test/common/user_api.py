@@ -12,7 +12,7 @@ class RuoYiApiError(RuntimeError):
 
 
 class RuoYiUserApi:
-    """Small API client used to clean up users created by the UI test."""
+    """Requests client for RuoYi user-management APIs and test-data cleanup."""
 
     def __init__(
         self,
@@ -71,6 +71,15 @@ class RuoYiUserApi:
             raise RuoYiApiError(f"RuoYi API request failed: {method} {path}: {data}")
         return data
 
+    def add_user(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self._request("POST", "/system/user", json=payload)
+
+    def get_user_detail(self, user_id: int) -> dict[str, Any]:
+        return self._request("GET", f"/system/user/{user_id}")
+
+    def update_user(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self._request("PUT", "/system/user", json=payload)
+
     def find_user_ids(self, username: str) -> list[int]:
         """Return IDs whose username exactly equals ``username``."""
         data = self._request(
@@ -92,14 +101,11 @@ class RuoYiUserApi:
         return self._request("DELETE", f"/system/user/{user_id}")
 
     def cleanup_user_by_username(self, username: str) -> dict[str, Any]:
-        """Delete only a generated UI-test user and verify that no copy remains.
-
-        The prefix guard is intentional: it prevents a mistaken cleanup call from
-        deleting a real account. The UI test generates names as ``ui_test_<uuid>``.
-        """
-        if not username.startswith("ui_test_"):
+        """Delete only a generated test user and verify that no copy remains."""
+        safe_prefixes = ("ui_test_", "api_test_")
+        if not username.startswith(safe_prefixes):
             raise ValueError(
-                "Refusing cleanup for a non-test username; expected prefix 'ui_test_'."
+                "Refusing cleanup for a non-test username; expected a safe test prefix."
             )
 
         user_ids = self.find_user_ids(username)

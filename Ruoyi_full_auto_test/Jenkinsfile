@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        skipDefaultCheckout(false)
+    }
+
+    environment {
+        RUOYI_FRONTEND_BASE_URL = 'http://localhost:82'
+        RUOYI_API_BASE_URL = 'http://localhost:8081'
+        RUOYI_UI_TIMEOUT = '30000'
+        RUOYI_API_TIMEOUT = '15'
+        PYTHONUTF8 = '1'
+    }
+
+    stages {
+        stage('Check services') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    foreach ($port in @(82, 8081)) {
+                        $available = Test-NetConnection -ComputerName localhost -Port $port -InformationLevel Quiet
+                        if (-not $available) {
+                            throw "RuoYi service port $port is not available"
+                        }
+                        Write-Host "localhost:$port is available"
+                    }
+                '''
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    python -m pip install -r requirements.txt
+                    python -m playwright install chromium
+                '''
+            }
+        }
+
+        stage('Run UI and API tests') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Continue'
+                    New-Item -ItemType Directory -Force -Path reports/allure-results, reports/screenshots/fail, reports/logs | Out-Null
+
+                    # Remove only generated files from this workspace, so the report contains this build only.
+                    foreach ($directory in @('reports/allure-results', 'reports/screenshots/fail', 'reports/logs')) {
+                        if (Test-Path -LiteralPath $directory) {
+                            Get-ChildItem -LiteralPath $directory -Force | Remove-Item -Recurse -Force
+                        }
+                    }
+                    if (Test-Path -LiteralPath 'reports/junit.xml') {
+                        Remove-Item -LiteralPath 'reports/junit.xml' -Force
+                    }
+
+                    # pytest-playwright runs headless by default; --headed is only for local visual debugging.
+                    python -m pytest test_ui test_api `
+                        --browser chromium `
+                        --alluredir=reports/allure-results `
+                        --junitxml=reports/junit.xml `
+                        -ra
+                    if ($LASTEXITCODE -ne 0) {
+                        exit $LASTEXITCODE
+                    }
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            junit testResults: 'reports/junit.xml', allowEmptyResults: true
+            archiveArtifacts artifacts: 'reports/**/*', allowEmptyArchive: true
+            // Requires the Jenkins Allure plugin. The result files are also archived above.
+            allure includeProperties: false, jdk: '', results: [[path: 'reports/allure-results']]
+        }
+    }
+}

@@ -1,0 +1,1 @@
+"""Page Objects used by the RuoYi UI tests."""

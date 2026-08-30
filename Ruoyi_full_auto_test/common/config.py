@@ -1,9 +1,17 @@
 import os
+from pathlib import Path
+
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+LOG_DIR = Path(os.getenv("RUOYI_LOG_DIR", str(PROJECT_ROOT / "reports" / "logs")))
 
 # Frontend addresses used by Playwright UI tests.
-FRONTEND_BASE_URL = os.getenv("RUOYI_FRONTEND_BASE_URL", "http://localhost:82")
+FRONTEND_BASE_URL = os.getenv("RUOYI_FRONTEND_BASE_URL", "http://localhost:82").rstrip("/")
 FRONTEND_LOGIN_URL = f"{FRONTEND_BASE_URL}/login"
 FRONTEND_INDEX_URL = f"{FRONTEND_BASE_URL}/index"
+UI_USERNAME = os.getenv("RUOYI_UI_USERNAME", "admin")
+UI_PASSWORD = os.getenv("RUOYI_UI_PASSWORD", "admin123")
+UI_TIMEOUT = int(os.getenv("RUOYI_UI_TIMEOUT", "15000"))
 
 # Backend API address. 8080 is Jenkins in this environment; RuoYi API listens on 8081.
 API_BASE_URL = os.getenv("RUOYI_API_BASE_URL", "http://localhost:8081").rstrip("/")
