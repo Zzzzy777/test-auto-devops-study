@@ -13,6 +13,8 @@ pipeline {
         RUOYI_UI_TIMEOUT = '30000'
         RUOYI_API_TIMEOUT = '15'
         PYTHONUTF8 = '1'
+        // Jenkins Windows Agent 上的 JMeter 安装目录；如果安装路径不同，请修改这一行。
+        JMETER_HOME = 'D:/apache-jmeter-5.6.3'
     }
 
     stages {
@@ -80,6 +82,103 @@ pipeline {
                         if ($testExitCode -ne 0) {
                             exit $testExitCode
                         }
+                    '''
+                }
+            }
+        }
+
+        stage('Run JMeter performance test') {
+            steps {
+                dir('Ruoyi_full_auto_test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+
+                        $jmx = Join-Path (Get-Location) 'performance\RuoYi_login_user_list.jmx'
+                        if (-not (Test-Path -LiteralPath $jmx)) {
+                            throw "JMeter test plan was not found: $jmx"
+                        }
+
+                        # Prefer JMETER_HOME, then fall back to jmeter.bat on PATH.
+                        $jmeterCandidates = @()
+                        if ($env:JMETER_HOME) {
+                            $jmeterCandidates += Join-Path $env:JMETER_HOME 'bin\jmeter.bat'
+                        }
+                        $jmeterCommand = Get-Command 'jmeter.bat' -ErrorAction SilentlyContinue
+                        if ($jmeterCommand) {
+                            $jmeterCandidates += $jmeterCommand.Source
+                        }
+                        $jmeter = $jmeterCandidates |
+                            Where-Object { $_ -and (Test-Path -LiteralPath $_) } |
+                            Select-Object -First 1
+                        if (-not $jmeter) {
+                            throw 'JMeter was not found. Configure JMETER_HOME or add jmeter.bat to the Jenkins agent PATH.'
+                        }
+                        Write-Host "Using JMeter: $jmeter"
+
+                        $reportRoot = Join-Path (Get-Location) 'reports\jmeter'
+                        New-Item -ItemType Directory -Force -Path $reportRoot | Out-Null
+                        # Keep this build's performance artifacts separate from previous runs.
+                        Get-ChildItem -LiteralPath $reportRoot -Force -ErrorAction SilentlyContinue |
+                            Remove-Item -Recurse -Force
+
+                        $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+                        $jtl = Join-Path $reportRoot "results-$stamp.jtl"
+                        $html = Join-Path $reportRoot "html-$stamp"
+                        $jmeterLog = Join-Path $reportRoot "jmeter-$stamp.log"
+
+                        $jmeterArgs = @(
+                            '-n',
+                            '-t', $jmx,
+                            '-Jhost=localhost',
+                            '-Jport=8081',
+                            '-l', $jtl,
+                            '-j', $jmeterLog,
+                            '-e',
+                            '-o', $html
+                        )
+
+                        # Credentials can be supplied as Jenkins environment variables without changing the JMX file.
+                        if ($env:RUOYI_TEST_USERNAME) {
+                            $jmeterArgs += "-Jusername=$($env:RUOYI_TEST_USERNAME)"
+                        }
+                        if ($env:RUOYI_TEST_PASSWORD) {
+                            $jmeterArgs += "-Jpassword=$($env:RUOYI_TEST_PASSWORD)"
+                        }
+
+                        & $jmeter @jmeterArgs
+                        $jmeterExitCode = $LASTEXITCODE
+                        if ($jmeterExitCode -ne 0) {
+                            throw "JMeter execution failed with exit code $jmeterExitCode"
+                        }
+                        if (-not (Test-Path -LiteralPath $jtl)) {
+                            throw "JMeter did not generate the JTL result file: $jtl"
+                        }
+                        if (-not (Test-Path -LiteralPath (Join-Path $html 'index.html'))) {
+                            throw "JMeter did not generate the HTML report: $html"
+                        }
+
+                        # JMeter can return exit code 0 even when an assertion fails, so enforce a result quality gate.
+                        $samples = @(Import-Csv -LiteralPath $jtl)
+                        $failedSamples = @($samples | Where-Object { $_.success -ne 'true' })
+                        $sampleCount = $samples.Count
+                        $failureCount = $failedSamples.Count
+                        Write-Host "JMeter samples: $sampleCount; failures: $failureCount"
+                        if ($sampleCount -eq 0) {
+                            throw 'JMeter generated an empty result file'
+                        }
+                        if ($failureCount -gt 0) {
+                            $failedLabels = ($failedSamples | Select-Object -ExpandProperty label -Unique) -join ', '
+                            throw "JMeter contains $failureCount failed sample(s): $failedLabels"
+                        }
+
+                        @(
+                            "JMeter test plan: $jmx"
+                            "JTL result: $jtl"
+                            "HTML report: $(Join-Path $html 'index.html')"
+                            "Samples: $sampleCount"
+                            "Failures: $failureCount"
+                        ) | Set-Content -Encoding utf8 -LiteralPath (Join-Path $reportRoot "summary-$stamp.txt")
+                        Write-Host "JMeter HTML report: $(Join-Path $html 'index.html')"
                     '''
                 }
             }

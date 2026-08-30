@@ -179,7 +179,8 @@ $env:RUOYI_API_PASSWORD = "admin123"
 2. 进入 `Ruoyi_full_auto_test` 子目录
 3. 安装 Python 依赖和 Chromium
 4. 以 headless 模式执行 UI/API 自动化测试
-5. 生成并归档 JUnit、Allure、日志和失败截图
+5. 以非 GUI 模式执行 JMeter 登录与用户列表性能测试
+6. 校验 JMeter 结果并归档 JUnit、Allure、JMeter HTML、日志和失败截图
 
 如果仓库根目录就是工作区，Jenkins Pipeline 的 Script Path 使用：
 
@@ -207,6 +208,8 @@ performance/README.md
 ```
 
 默认线程组为 5 个并发用户、10 秒 ramp-up、每个用户循环 2 次，适合建立基础性能数据。性能结果不提交到 Git。
+
+Jenkins 执行时会自动在 `reports/jmeter/` 下生成 JTL 原始结果、JMeter 日志和 HTML 报告，并将报告作为构建产物归档。Windows Agent 需要配置 `JMETER_HOME`，默认值为 `D:/apache-jmeter-5.6.3`。
 
 ## 测试结果
 
