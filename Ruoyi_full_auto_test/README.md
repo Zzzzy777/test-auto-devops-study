@@ -209,7 +209,7 @@ performance/README.md
 
 默认线程组为 5 个并发用户、10 秒 ramp-up、每个用户循环 2 次，适合建立基础性能数据。性能结果不提交到 Git。
 
-Jenkins 执行时会自动在 `reports/jmeter/` 下生成 JTL 原始结果、JMeter 日志和 HTML 报告，并将报告作为构建产物归档。Windows Agent 需要配置 `JMETER_HOME`，默认值为 `D:/apache-jmeter-5.6.3`。
+Jenkins 执行时会自动在 `reports/jmeter/` 下生成 JTL 原始结果、JMeter 日志和 HTML 报告，并将报告作为构建产物归档。流水线还通过 Jenkins HTML Publisher 插件发布 `JMeter Performance Report`。Windows Agent 需要配置 `JMETER_HOME`，默认值为 `D:/apache-jmeter-5.6.3`。
 
 ## 测试结果
 

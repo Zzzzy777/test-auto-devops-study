@@ -123,7 +123,8 @@ pipeline {
 
                         $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
                         $jtl = Join-Path $reportRoot "results-$stamp.jtl"
-                        $html = Join-Path $reportRoot "html-$stamp"
+                        # Use a stable directory so HTML Publisher can expose the report in Jenkins.
+                        $html = Join-Path $reportRoot 'html'
                         $jmeterLog = Join-Path $reportRoot "jmeter-$stamp.log"
 
                         $jmeterArgs = @(
@@ -191,6 +192,17 @@ pipeline {
             archiveArtifacts artifacts: 'Ruoyi_full_auto_test/reports/**/*', allowEmptyArchive: true
             // Requires the Jenkins Allure plugin. The result files are also archived above.
             allure includeProperties: false, jdk: '', results: [[path: 'Ruoyi_full_auto_test/reports/allure-results']]
+
+            // Requires the Jenkins HTML Publisher plugin. This avoids blank JMeter dashboards caused by
+            // Jenkins archived-artifact browser security restrictions on report JavaScript.
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'Ruoyi_full_auto_test/reports/jmeter/html',
+                reportFiles: 'index.html',
+                reportName: 'JMeter Performance Report'
+            ])
         }
     }
 }
