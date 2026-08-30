@@ -1,0 +1,7 @@
+pytest>=7.4
+requests
+allure-pytest
+pymysql
+pyyaml
+playwright
+pytest-playwright
