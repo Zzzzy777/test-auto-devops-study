@@ -6,10 +6,9 @@ __pycache__/
 venv/
 
 # Test reports and runtime logs
-reports/allure-results/
-reports/junit.xml
-reports/screenshots/
-reports/logs/
+report/
+reports/
+*.jtl
 
 # Local secrets
 .env
