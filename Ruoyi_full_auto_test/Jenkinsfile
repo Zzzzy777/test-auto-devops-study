@@ -93,7 +93,7 @@ pipeline {
                     powershell '''
                         $ErrorActionPreference = 'Stop'
 
-                        $jmx = Join-Path (Get-Location) 'performance\RuoYi_login_user_list.jmx'
+                        $jmx = Join-Path (Get-Location) 'performance/RuoYi_login_user_list.jmx'
                         if (-not (Test-Path -LiteralPath $jmx)) {
                             throw "JMeter test plan was not found: $jmx"
                         }
@@ -101,7 +101,7 @@ pipeline {
                         # Prefer JMETER_HOME, then fall back to jmeter.bat on PATH.
                         $jmeterCandidates = @()
                         if ($env:JMETER_HOME) {
-                            $jmeterCandidates += Join-Path $env:JMETER_HOME 'bin\jmeter.bat'
+                            $jmeterCandidates += Join-Path $env:JMETER_HOME 'bin/jmeter.bat'
                         }
                         $jmeterCommand = Get-Command 'jmeter.bat' -ErrorAction SilentlyContinue
                         if ($jmeterCommand) {
@@ -115,7 +115,7 @@ pipeline {
                         }
                         Write-Host "Using JMeter: $jmeter"
 
-                        $reportRoot = Join-Path (Get-Location) 'reports\jmeter'
+                        $reportRoot = Join-Path (Get-Location) 'reports/jmeter'
                         New-Item -ItemType Directory -Force -Path $reportRoot | Out-Null
                         # Keep this build's performance artifacts separate from previous runs.
                         Get-ChildItem -LiteralPath $reportRoot -Force -ErrorAction SilentlyContinue |
