@@ -27,6 +27,9 @@ pipeline {
         RUOYI_UI_PASSWORD = 'admin123'
         RUOYI_DEFAULT_DEPT_ID = '105'
         PYTHONUNBUFFERED = '1'
+        // Map Jenkins parameters to environment variables for PowerShell.
+        PYTHON_CMD = "${params.PYTHON_CMD}"
+        JMETER_CMD = "${params.JMETER_CMD}"
     }
 
     stages {
