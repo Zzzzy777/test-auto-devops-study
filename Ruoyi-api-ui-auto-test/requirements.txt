@@ -1,0 +1,18 @@
+# 测试框架
+pytest>=7.4.0
+
+# HTTP 接口请求
+requests>=2.31.0
+
+# Allure 报告
+allure-pytest>=2.13.0
+
+# UI 自动化
+playwright>=1.45.0
+pytest-playwright>=0.5.0
+
+# MySQL 数据库辅助校验
+pymysql>=1.1.0
+
+# YAML 数据处理
+pyyaml>=6.0.0

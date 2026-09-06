@@ -1,0 +1,67 @@
+﻿pipeline {
+    agent any
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+    parameters {
+        booleanParam(name: 'RUN_UI', defaultValue: true, description: '是否执行 Playwright UI 测试')
+        booleanParam(name: 'RUN_PERFORMANCE', defaultValue: false, description: '是否执行 JMeter 性能测试')
+        string(name: 'PYTHON_CMD', defaultValue: 'python', description: 'Windows Agent 上的 Python 命令')
+        string(name: 'JMETER_CMD', defaultValue: 'jmeter', description: 'jmeter.bat 路径或 PATH 中的 jmeter')
+    }
+    stages {
+        stage('检查服务') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $api = ([uri]$env:RUOYI_API_BASE_URL).Port
+                    $front = ([uri]$env:RUOYI_FRONTEND_BASE_URL).Port
+                    $apiHost = ([uri]$env:RUOYI_API_BASE_URL).Host
+                    $frontHost = ([uri]$env:RUOYI_FRONTEND_BASE_URL).Host
+                    if (-not (Test-NetConnection $apiHost -Port $api -InformationLevel Quiet)) { throw "RuoYi API unavailable: $env:RUOYI_API_BASE_URL" }
+                    if (-not (Test-NetConnection $frontHost -Port $front -InformationLevel Quiet)) { throw "RuoYi frontend unavailable: $env:RUOYI_FRONTEND_BASE_URL" }
+                '''
+            }
+        }
+        stage('安装依赖') {
+            steps {
+                powershell '& $env:PYTHON_CMD -m pip install -r requirements.txt'
+                powershell '& $env:PYTHON_CMD -m playwright install chromium'
+            }
+        }
+        stage('API 测试') {
+            steps {
+                powershell '& $env:PYTHON_CMD -m pytest test_api -v --tb=short --alluredir=reports/allure-results --junitxml=reports/api-junit.xml'
+            }
+        }
+        stage('UI 测试') {
+            when { expression { params.RUN_UI } }
+            steps {
+                powershell '& $env:PYTHON_CMD -m pytest test_ui -v --browser chromium --tb=short --alluredir=reports/allure-results --junitxml=reports/ui-junit.xml'
+            }
+        }
+        stage('JMeter 性能测试') {
+            when { expression { params.RUN_PERFORMANCE } }
+            steps {
+                powershell '''
+                    New-Item -ItemType Directory -Force reports/jmeter | Out-Null
+                    $apiUri = [uri]$env:RUOYI_API_BASE_URL
+                    & $env:JMETER_CMD -n -t performance/RuoYi_login_user_list.jmx `
+                      "-Jhost=$($apiUri.Host)" `
+                      "-Jport=$($apiUri.Port)" `
+                      "-Jusername=$env:RUOYI_API_USERNAME" `
+                      "-Jpassword=$env:RUOYI_API_PASSWORD" `
+                      -Jthreads=5 -Jramp_up=10 -Jloops=2 `
+                      -l reports/jmeter/result.jtl -e -o reports/jmeter/html
+                '''
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: 'reports/*-junit.xml'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/**/*'
+        }
+    }
+}
