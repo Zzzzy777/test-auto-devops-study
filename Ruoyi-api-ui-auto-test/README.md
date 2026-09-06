@@ -1,4 +1,4 @@
-﻿# RuoYi 一体化质量保障与持续集成项目
+# RuoYi 一体化质量保障与持续集成项目
 
 本项目把 RuoYi 的接口自动化、UI 自动化、JMeter 性能测试和 Jenkins CI 整合到一个可重复运行的测试工程中。
 
@@ -120,6 +120,23 @@ New-Item -ItemType Directory -Force reports\jmeter | Out-Null
 ## Jenkins
 
 `Jenkinsfile` 默认执行 API，可通过参数选择 UI 和 JMeter。流水线要求 Windows Agent 已安装 Python、Playwright/Chromium 和 JMeter，并建议使用 Jenkins Credentials 注入账号密码。凭据 ID 可按你的 Jenkins 实际名称调整。
+
+### Jenkins 中显示 Allure Report
+
+Jenkins 页面中的 `Tests` 是 JUnit 测试结果；要出现 `Allure Report`，还必须完成下面配置：
+
+1. 在 Jenkins 插件管理中安装 **Allure Jenkins Plugin**（插件名称通常显示为 `Allure`），安装后重启 Jenkins。
+2. 进入 `Manage Jenkins -> Tools -> Allure Commandline installations`，新增 Allure Commandline 安装。建议安装名称填写 `allure`，可以勾选自动安装，也可以填写本机 Allure CLI 目录。
+3. 确认 Jenkins 构建使用的是最新 `Jenkinsfile`。本项目测试命令通过 `--alluredir=reports/allure-results` 生成原始结果，`post` 阶段通过 `allure([...])` 发布报告。
+4. 重新构建成功后，在构建详情页点击 `Allure Report`；原始结果也会在 `Build Artifacts` 中归档。
+
+常见问题：
+
+- 控制台出现 `No such DSL method 'allure'`：Allure Jenkins Plugin 未安装、未重启生效，或构建读取的仍是旧提交。
+- 报告为空：检查控制台是否执行了 `--alluredir=reports/allure-results`，并确认工作区存在 `Ruoyi-api-ui-auto-test/reports/allure-results/*-result.json`。
+- 页面只有 `Tests` 没有 `Allure Report`：通常是 Jenkinsfile 只有 `junit(...)`，缺少 `allure([...])` 发布步骤。
+
+当前流水线使用仓库根目录作为工作区，因此 Allure 发布路径必须写成 `Ruoyi-api-ui-auto-test/reports/allure-results`，不能误写成只包含 `reports/allure-results` 的路径。
 
 ## 当前用例数量
 

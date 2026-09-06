@@ -44,6 +44,15 @@ pipeline {
                         Remove-Item -LiteralPath `
                             'reports/api-junit.xml', 'reports/ui-junit.xml' `
                             -Force -ErrorAction SilentlyContinue
+                        # Remove old Allure raw results so each build has an isolated report.
+                        Remove-Item -Path 'reports/allure-results/*' -Recurse -Force -ErrorAction SilentlyContinue
+                        # 写入构建环境信息，便于在 Allure Environment 页面定位问题。
+                        @(
+                            "api.base.url=$env:RUOYI_API_BASE_URL"
+                            "frontend.base.url=$env:RUOYI_FRONTEND_BASE_URL"
+                            "jenkins.build=$env:BUILD_NUMBER"
+                            "python.command=$env:PYTHON_CMD"
+                        ) | Set-Content -Encoding utf8 -Path 'reports/allure-results/environment.properties'
                         Write-Host "API: $env:RUOYI_API_BASE_URL"
                         Write-Host "Frontend: $env:RUOYI_FRONTEND_BASE_URL"
                     '''
@@ -165,6 +174,15 @@ pipeline {
                 artifacts: 'Ruoyi-api-ui-auto-test/reports/**/*',
                 fingerprint: true
             )
+
+            // Publish pytest Allure raw results on the Jenkins build page.
+            // Requires the Allure Jenkins Plugin and a configured Allure Commandline installation.
+            allure([
+                includeProperties: false,
+                reportBuildPolicy: 'ALWAYS',
+                jdk: '',
+                results: [[path: 'Ruoyi-api-ui-auto-test/reports/allure-results']]
+            ])
         }
     }
 }
