@@ -66,3 +66,27 @@ JMX 中对应 `${__P(threads,5)}`、`${__P(ramp_up,10)}` 和 `${__P(loops,2)}`�
 ## 结果记录
 
 只记录实际执行结果：样本数、TPS/吞吐量、平均响应时间、P90/P95/P99、错误率，以及 CPU、内存、JVM、数据库连接池和慢 SQL。不要把未经运行的数字写入 README、简历或面试材料。
+## Jenkins HTML 报告空白排查
+
+如果 Jenkins 构建成功、页面上能看到 `JMeter Performance Report`，但报告中的 `Requests Summary`、`Statistics` 和图表为空，先确认不是 JTL 没有数据：
+
+```powershell
+Get-Content reports\jmeter\result.jtl -TotalCount 5
+Get-Content reports\jmeter\html\statistics.json
+```
+
+JTL 至少应包含表头和请求记录，`statistics.json` 中应有 `Total`、`sampleCount` 等字段。若本地直接双击 `index.html`，请改用 HTTP 方式打开：
+
+```powershell
+cd reports\jmeter\html
+python -m http.server 8000
+Start-Process http://localhost:8000/index.html
+```
+
+若通过 Jenkins 的 `JMeter Performance Report` 打开仍然空白，按 `F12` 查看 Console，重点检查 Content-Security-Policy（CSP）报错。JMeter 页面需要加载 JavaScript 和 `statistics.json`，Jenkins 对归档 HTML 默认施加 CSP，可能导致动态表格和图表无法加载。优先让 Jenkins 管理员配置 Resource Root URL；仅在本机学习环境临时验证时，才可以在 `Manage Jenkins -> Script Console` 执行：
+
+```groovy
+System.setProperty('hudson.model.DirectoryBrowserSupport.CSP', '')
+```
+
+然后刷新报告页面。清空 CSP 会降低 Jenkins 对归档 HTML 的安全保护，不要在共享或公网 Jenkins 上长期使用。确认原因后，应恢复安全配置并按 Jenkins 的 Resource Root URL 方案处理。
