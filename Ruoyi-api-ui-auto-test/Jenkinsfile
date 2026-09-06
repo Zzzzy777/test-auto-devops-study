@@ -1,67 +1,147 @@
-﻿pipeline {
+pipeline {
+    // Windows Jenkins Agent ????Linux Agent ?? powershell ?? sh?
     agent any
+
     options {
         timestamps()
         disableConcurrentBuilds()
     }
+
     parameters {
-        booleanParam(name: 'RUN_UI', defaultValue: true, description: '是否执行 Playwright UI 测试')
-        booleanParam(name: 'RUN_PERFORMANCE', defaultValue: false, description: '是否执行 JMeter 性能测试')
-        string(name: 'PYTHON_CMD', defaultValue: 'python', description: 'Windows Agent 上的 Python 命令')
-        string(name: 'JMETER_CMD', defaultValue: 'jmeter', description: 'jmeter.bat 路径或 PATH 中的 jmeter')
+        booleanParam(name: 'RUN_UI', defaultValue: true, description: '???? Playwright UI ??')
+        booleanParam(name: 'RUN_PERFORMANCE', defaultValue: false, description: '???? JMeter ????')
+        string(name: 'PYTHON_CMD', defaultValue: 'python', description: 'Windows Agent ?? Python ???????')
+        string(name: 'JMETER_CMD', defaultValue: 'jmeter', description: 'JMeter ??? jmeter.bat ????')
     }
+
+    // ? common/config.py ?????????
+    // ???????? Jenkins Credentials ????????????????? Git?
+    environment {
+        RUOYI_API_BASE_URL = 'http://localhost:8081'
+        RUOYI_FRONTEND_BASE_URL = 'http://localhost:82'
+        RUOYI_API_USERNAME = 'admin'
+        RUOYI_API_PASSWORD = 'admin123'
+        RUOYI_UI_USERNAME = 'admin'
+        RUOYI_UI_PASSWORD = 'admin123'
+        RUOYI_DEFAULT_DEPT_ID = '105'
+        PYTHONUNBUFFERED = '1'
+    }
+
     stages {
-        stage('检查服务') {
+        stage('??????') {
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
-                    $api = ([uri]$env:RUOYI_API_BASE_URL).Port
-                    $front = ([uri]$env:RUOYI_FRONTEND_BASE_URL).Port
-                    $apiHost = ([uri]$env:RUOYI_API_BASE_URL).Host
-                    $frontHost = ([uri]$env:RUOYI_FRONTEND_BASE_URL).Host
-                    if (-not (Test-NetConnection $apiHost -Port $api -InformationLevel Quiet)) { throw "RuoYi API unavailable: $env:RUOYI_API_BASE_URL" }
-                    if (-not (Test-NetConnection $frontHost -Port $front -InformationLevel Quiet)) { throw "RuoYi frontend unavailable: $env:RUOYI_FRONTEND_BASE_URL" }
+                    New-Item -ItemType Directory -Force -Path `
+                        'reports', 'reports/allure-results', 'reports/screenshots/fail' | Out-Null
+                    Write-Host "Workspace: $(Get-Location)"
+                    Write-Host "API: $env:RUOYI_API_BASE_URL"
+                    Write-Host "Frontend: $env:RUOYI_FRONTEND_BASE_URL"
                 '''
             }
         }
-        stage('安装依赖') {
-            steps {
-                powershell '& $env:PYTHON_CMD -m pip install -r requirements.txt'
-                powershell '& $env:PYTHON_CMD -m playwright install chromium'
-            }
-        }
-        stage('API 测试') {
-            steps {
-                powershell '& $env:PYTHON_CMD -m pytest test_api -v --tb=short --alluredir=reports/allure-results --junitxml=reports/api-junit.xml'
-            }
-        }
-        stage('UI 测试') {
-            when { expression { params.RUN_UI } }
-            steps {
-                powershell '& $env:PYTHON_CMD -m pytest test_ui -v --browser chromium --tb=short --alluredir=reports/allure-results --junitxml=reports/ui-junit.xml'
-            }
-        }
-        stage('JMeter 性能测试') {
-            when { expression { params.RUN_PERFORMANCE } }
+
+        stage('????') {
             steps {
                 powershell '''
-                    New-Item -ItemType Directory -Force reports/jmeter | Out-Null
+                    $ErrorActionPreference = 'Stop'
                     $apiUri = [uri]$env:RUOYI_API_BASE_URL
-                    & $env:JMETER_CMD -n -t performance/RuoYi_login_user_list.jmx `
-                      "-Jhost=$($apiUri.Host)" `
-                      "-Jport=$($apiUri.Port)" `
-                      "-Jusername=$env:RUOYI_API_USERNAME" `
-                      "-Jpassword=$env:RUOYI_API_PASSWORD" `
-                      -Jthreads=5 -Jramp_up=10 -Jloops=2 `
-                      -l reports/jmeter/result.jtl -e -o reports/jmeter/html
+                    $frontUri = [uri]$env:RUOYI_FRONTEND_BASE_URL
+
+                    $apiAvailable = Test-NetConnection `
+                        -ComputerName $apiUri.Host -Port $apiUri.Port `
+                        -InformationLevel Quiet -WarningAction SilentlyContinue
+                    if (-not $apiAvailable) {
+                        throw "RuoYi API ????: $env:RUOYI_API_BASE_URL"
+                    }
+
+                    $frontAvailable = Test-NetConnection `
+                        -ComputerName $frontUri.Host -Port $frontUri.Port `
+                        -InformationLevel Quiet -WarningAction SilentlyContinue
+                    if (-not $frontAvailable) {
+                        throw "RuoYi ??????: $env:RUOYI_FRONTEND_BASE_URL"
+                    }
+                    Write-Host '??????????'
+                '''
+            }
+        }
+
+        stage('????') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    & $env:PYTHON_CMD -m pip install -r requirements.txt
+                    if ($LASTEXITCODE -ne 0) { throw 'Python ??????' }
+                    & $env:PYTHON_CMD -m playwright install chromium
+                    if ($LASTEXITCODE -ne 0) { throw 'Playwright Chromium ????' }
+                '''
+            }
+        }
+
+        stage('API ??') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    & $env:PYTHON_CMD -m pytest test_api -v --tb=short `
+                        --alluredir=reports/allure-results `
+                        --junitxml=reports/api-junit.xml
+                    if ($LASTEXITCODE -ne 0) { throw 'API ???????' }
+                '''
+            }
+        }
+
+        stage('UI ??') {
+            when {
+                expression { return params.RUN_UI }
+            }
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    & $env:PYTHON_CMD -m pytest test_ui -v --browser chromium --tb=short `
+                        --alluredir=reports/allure-results `
+                        --junitxml=reports/ui-junit.xml
+                    if ($LASTEXITCODE -ne 0) { throw 'UI ???????' }
+                '''
+            }
+        }
+
+        stage('JMeter ????') {
+            when {
+                expression { return params.RUN_PERFORMANCE }
+            }
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $jmeterDir = 'reports/jmeter'
+                    New-Item -ItemType Directory -Force -Path $jmeterDir | Out-Null
+                    $htmlDir = Join-Path $jmeterDir 'html'
+                    if (Test-Path -LiteralPath $htmlDir) {
+                        Remove-Item -LiteralPath $htmlDir -Recurse -Force
+                    }
+
+                    $apiUri = [uri]$env:RUOYI_API_BASE_URL
+                    & $env:JMETER_CMD -n -t 'performance/RuoYi_login_user_list.jmx' `
+                        "-Jhost=$($apiUri.Host)" `
+                        "-Jport=$($apiUri.Port)" `
+                        "-Jusername=$env:RUOYI_API_USERNAME" `
+                        "-Jpassword=$env:RUOYI_API_PASSWORD" `
+                        '-Jthreads=5' '-Jramp_up=10' '-Jloops=2' `
+                        -l "$jmeterDir/result.jtl" -e -o $htmlDir
+                    if ($LASTEXITCODE -ne 0) { throw 'JMeter ??????' }
                 '''
             }
         }
     }
+
     post {
         always {
+            // ???????????? JUnit?Allure???? JMeter ???
             junit allowEmptyResults: true, testResults: 'reports/*-junit.xml'
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/**/*'
+            archiveArtifacts(
+                allowEmptyArchive: true,
+                artifacts: 'reports/**/*',
+                fingerprint: true
+            )
         }
     }
 }
