@@ -175,6 +175,18 @@ pipeline {
                             -l "$jmeterDir/result.jtl" -e -o $htmlDir
                         if ($LASTEXITCODE -ne 0) { throw 'JMeter performance test failed' }
 
+                        # JMeter 官方 HTML dashboard 依赖 JavaScript，Jenkins CSP 可能会拦截它。
+                        # 额外生成一个纯静态 HTML 报告，确保 Jenkins 页面始终能展示真实数据。
+                        $staticDir = Join-Path $jmeterDir 'static'
+                        Remove-Item -LiteralPath $staticDir -Recurse -Force -ErrorAction SilentlyContinue
+                        & $env:PYTHON_CMD performance/generate_jmeter_report.py `
+                            --jtl "$jmeterDir/result.jtl" `
+                            --output-dir $staticDir `
+                            --threads $threads `
+                            --ramp-up $rampUp `
+                            --loops $loops
+                        if ($LASTEXITCODE -ne 0) { throw 'Static JMeter report generation failed' }
+
                         & $env:PYTHON_CMD performance/check_jtl.py `
                             --jtl "$jmeterDir/result.jtl" `
                             --max-error-rate "$env:PERF_MAX_ERROR_RATE" `
@@ -204,15 +216,15 @@ pipeline {
                 jdk: '',
                 results: [[path: 'Ruoyi-api-ui-auto-test/reports/allure-results']]
             ])
-            // Requires HTML Publisher Plugin. The report is generated only when
-            // RUN_PERFORMANCE=true, therefore allowMissing must remain true.
+            // Publish the CSP-friendly static report. HTML Publisher Plugin is required.
+            // The report is generated only when RUN_PERFORMANCE=true, so allowMissing remains true.
             publishHTML(target: [
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: 'Ruoyi-api-ui-auto-test/reports/jmeter/html',
+                reportDir: 'Ruoyi-api-ui-auto-test/reports/jmeter/static',
                 reportFiles: 'index.html',
-                reportName: 'JMeter Performance Report'
+                reportName: 'JMeter Performance Report (Static)'
             ])
         }
     }
