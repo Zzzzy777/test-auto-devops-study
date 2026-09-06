@@ -1,5 +1,6 @@
 pipeline {
-    // Windows Jenkins Agent ????Linux Agent ?? powershell ?? sh?
+    // This project is stored in the Ruoyi-api-ui-auto-test subdirectory.
+    // This Jenkinsfile targets a Windows Jenkins Agent because it uses powershell.
     agent any
 
     options {
@@ -8,17 +9,18 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'RUN_UI', defaultValue: true, description: '???? Playwright UI ??')
-        booleanParam(name: 'RUN_PERFORMANCE', defaultValue: false, description: '???? JMeter ????')
-        string(name: 'PYTHON_CMD', defaultValue: 'python', description: 'Windows Agent ?? Python ???????')
-        string(name: 'JMETER_CMD', defaultValue: 'jmeter', description: 'JMeter ??? jmeter.bat ????')
+        booleanParam(name: 'RUN_UI', defaultValue: true, description: 'Run Playwright UI tests')
+        booleanParam(name: 'RUN_PERFORMANCE', defaultValue: false, description: 'Run JMeter performance test')
+        string(name: 'PYTHON_CMD', defaultValue: 'python', description: 'Python command or absolute path on the Windows Agent')
+        string(name: 'JMETER_CMD', defaultValue: 'jmeter', description: 'JMeter command or absolute path to jmeter.bat')
     }
 
-    // ? common/config.py ?????????
-    // ???????? Jenkins Credentials ????????????????? Git?
     environment {
+        // Change localhost to the RuoYi server IP when Jenkins Agent is remote or containerized.
         RUOYI_API_BASE_URL = 'http://localhost:8081'
         RUOYI_FRONTEND_BASE_URL = 'http://localhost:82'
+
+        // Demo credentials. Use Jenkins Credentials for real environments.
         RUOYI_API_USERNAME = 'admin'
         RUOYI_API_PASSWORD = 'admin123'
         RUOYI_UI_USERNAME = 'admin'
@@ -28,118 +30,136 @@ pipeline {
     }
 
     stages {
-        stage('??????') {
+        stage('Prepare reports') {
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    New-Item -ItemType Directory -Force -Path `
-                        'reports', 'reports/allure-results', 'reports/screenshots/fail' | Out-Null
-                    Write-Host "Workspace: $(Get-Location)"
-                    Write-Host "API: $env:RUOYI_API_BASE_URL"
-                    Write-Host "Frontend: $env:RUOYI_FRONTEND_BASE_URL"
-                '''
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        Write-Host "Project directory: $(Get-Location)"
+                        New-Item -ItemType Directory -Force -Path `
+                            'reports', 'reports/allure-results', 'reports/screenshots/fail' | Out-Null
+                        Remove-Item -LiteralPath `
+                            'reports/api-junit.xml', 'reports/ui-junit.xml' `
+                            -Force -ErrorAction SilentlyContinue
+                        Write-Host "API: $env:RUOYI_API_BASE_URL"
+                        Write-Host "Frontend: $env:RUOYI_FRONTEND_BASE_URL"
+                    '''
+                }
             }
         }
 
-        stage('????') {
+        stage('Check RuoYi services') {
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    $apiUri = [uri]$env:RUOYI_API_BASE_URL
-                    $frontUri = [uri]$env:RUOYI_FRONTEND_BASE_URL
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        $apiUri = [System.Uri]$env:RUOYI_API_BASE_URL
+                        $frontUri = [System.Uri]$env:RUOYI_FRONTEND_BASE_URL
 
-                    $apiAvailable = Test-NetConnection `
-                        -ComputerName $apiUri.Host -Port $apiUri.Port `
-                        -InformationLevel Quiet -WarningAction SilentlyContinue
-                    if (-not $apiAvailable) {
-                        throw "RuoYi API ????: $env:RUOYI_API_BASE_URL"
-                    }
+                        $apiAvailable = Test-NetConnection `
+                            -ComputerName $apiUri.Host -Port $apiUri.Port `
+                            -InformationLevel Quiet -WarningAction SilentlyContinue
+                        if (-not $apiAvailable) {
+                            throw "RuoYi API is unavailable: $env:RUOYI_API_BASE_URL"
+                        }
 
-                    $frontAvailable = Test-NetConnection `
-                        -ComputerName $frontUri.Host -Port $frontUri.Port `
-                        -InformationLevel Quiet -WarningAction SilentlyContinue
-                    if (-not $frontAvailable) {
-                        throw "RuoYi ??????: $env:RUOYI_FRONTEND_BASE_URL"
-                    }
-                    Write-Host '??????????'
-                '''
+                        $frontAvailable = Test-NetConnection `
+                            -ComputerName $frontUri.Host -Port $frontUri.Port `
+                            -InformationLevel Quiet -WarningAction SilentlyContinue
+                        if (-not $frontAvailable) {
+                            throw "RuoYi frontend is unavailable: $env:RUOYI_FRONTEND_BASE_URL"
+                        }
+                        Write-Host 'RuoYi API and frontend checks passed.'
+                    '''
+                }
             }
         }
 
-        stage('????') {
+        stage('Install Python and Playwright dependencies') {
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    & $env:PYTHON_CMD -m pip install -r requirements.txt
-                    if ($LASTEXITCODE -ne 0) { throw 'Python ??????' }
-                    & $env:PYTHON_CMD -m playwright install chromium
-                    if ($LASTEXITCODE -ne 0) { throw 'Playwright Chromium ????' }
-                '''
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        & $env:PYTHON_CMD -m pip install -r requirements.txt
+                        if ($LASTEXITCODE -ne 0) { throw 'Python dependency installation failed' }
+                        & $env:PYTHON_CMD -m playwright install chromium
+                        if ($LASTEXITCODE -ne 0) { throw 'Playwright Chromium installation failed' }
+                    '''
+                }
             }
         }
 
-        stage('API ??') {
+        stage('API tests') {
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    & $env:PYTHON_CMD -m pytest test_api -v --tb=short `
-                        --alluredir=reports/allure-results `
-                        --junitxml=reports/api-junit.xml
-                    if ($LASTEXITCODE -ne 0) { throw 'API ???????' }
-                '''
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        & $env:PYTHON_CMD -m pytest test_api -v --tb=short `
+                            --alluredir=reports/allure-results `
+                            --junitxml=reports/api-junit.xml
+                        if ($LASTEXITCODE -ne 0) { throw 'API tests failed' }
+                    '''
+                }
             }
         }
 
-        stage('UI ??') {
+        stage('UI tests') {
             when {
                 expression { return params.RUN_UI }
             }
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    & $env:PYTHON_CMD -m pytest test_ui -v --browser chromium --tb=short `
-                        --alluredir=reports/allure-results `
-                        --junitxml=reports/ui-junit.xml
-                    if ($LASTEXITCODE -ne 0) { throw 'UI ???????' }
-                '''
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        & $env:PYTHON_CMD -m pytest test_ui -v --browser chromium --tb=short `
+                            --alluredir=reports/allure-results `
+                            --junitxml=reports/ui-junit.xml
+                        if ($LASTEXITCODE -ne 0) { throw 'UI tests failed' }
+                    '''
+                }
             }
         }
 
-        stage('JMeter ????') {
+        stage('JMeter performance test') {
             when {
                 expression { return params.RUN_PERFORMANCE }
             }
             steps {
-                powershell '''
-                    $ErrorActionPreference = 'Stop'
-                    $jmeterDir = 'reports/jmeter'
-                    New-Item -ItemType Directory -Force -Path $jmeterDir | Out-Null
-                    $htmlDir = Join-Path $jmeterDir 'html'
-                    if (Test-Path -LiteralPath $htmlDir) {
-                        Remove-Item -LiteralPath $htmlDir -Recurse -Force
-                    }
+                dir('Ruoyi-api-ui-auto-test') {
+                    powershell '''
+                        $ErrorActionPreference = 'Stop'
+                        $jmeterDir = 'reports/jmeter'
+                        $htmlDir = Join-Path $jmeterDir 'html'
+                        New-Item -ItemType Directory -Force -Path $jmeterDir | Out-Null
+                        if (Test-Path -LiteralPath $htmlDir) {
+                            Remove-Item -LiteralPath $htmlDir -Recurse -Force
+                        }
 
-                    $apiUri = [uri]$env:RUOYI_API_BASE_URL
-                    & $env:JMETER_CMD -n -t 'performance/RuoYi_login_user_list.jmx' `
-                        "-Jhost=$($apiUri.Host)" `
-                        "-Jport=$($apiUri.Port)" `
-                        "-Jusername=$env:RUOYI_API_USERNAME" `
-                        "-Jpassword=$env:RUOYI_API_PASSWORD" `
-                        '-Jthreads=5' '-Jramp_up=10' '-Jloops=2' `
-                        -l "$jmeterDir/result.jtl" -e -o $htmlDir
-                    if ($LASTEXITCODE -ne 0) { throw 'JMeter ??????' }
-                '''
+                        $apiUri = [System.Uri]$env:RUOYI_API_BASE_URL
+                        & $env:JMETER_CMD -n -t 'performance/RuoYi_login_user_list.jmx' `
+                            "-Jhost=$($apiUri.Host)" `
+                            "-Jport=$($apiUri.Port)" `
+                            "-Jusername=$env:RUOYI_API_USERNAME" `
+                            "-Jpassword=$env:RUOYI_API_PASSWORD" `
+                            '-Jthreads=5' '-Jramp_up=10' '-Jloops=2' `
+                            -l "$jmeterDir/result.jtl" -e -o $htmlDir
+                        if ($LASTEXITCODE -ne 0) { throw 'JMeter performance test failed' }
+                    '''
+                }
             }
         }
     }
 
     post {
         always {
-            // ???????????? JUnit?Allure???? JMeter ???
-            junit allowEmptyResults: true, testResults: 'reports/*-junit.xml'
+            // The Jenkins workspace is the repository root, so report paths include the project directory.
+            junit(
+                allowEmptyResults: true,
+                testResults: 'Ruoyi-api-ui-auto-test/reports/*-junit.xml'
+            )
             archiveArtifacts(
                 allowEmptyArchive: true,
-                artifacts: 'reports/**/*',
+                artifacts: 'Ruoyi-api-ui-auto-test/reports/**/*',
                 fingerprint: true
             )
         }
