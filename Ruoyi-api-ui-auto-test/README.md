@@ -37,7 +37,7 @@ Jenkinsfile             Windows Jenkins 流水线
 ## 安装
 
 ```powershell
-cd D:\auto-test-note\projects\Ruoyi_finally
+cd D:\运维测试\test-auto-devops-study\Ruoyi-api-ui-auto-test
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -141,3 +141,54 @@ Jenkins 页面中的 `Tests` 是 JUnit 测试结果；要出现 `Allure Report`�
 ## 当前用例数量
 
 以 `python -m pytest --collect-only -q` 的实际输出为准。不要在 README 或简历中虚构测试数量、通过率或性能提升比例。
+
+## 性能测试接入 Jenkins
+
+Jenkinsfile 已支持以下参数：
+
+- `RUN_API`：是否执行接口自动化；
+- `RUN_UI`：是否执行 UI 自动化；
+- `RUN_PERFORMANCE`：是否执行 JMeter 性能测试；
+- `PERF_THREADS`：线程数，默认 5；
+- `PERF_RAMP_UP`：启动时间（秒），默认 10；
+- `PERF_LOOPS`：每线程循环数，默认 2；
+- `PERF_MAX_ERROR_RATE`：允许的最大错误率（百分比），默认 0；
+- `PERF_MAX_P95_MS`：允许的最大 P95（毫秒），默认 2000；
+- `JMETER_CMD`：JMeter 命令或 `jmeter.bat` 的绝对路径。
+
+建议先创建一个性能专项构建：
+
+```text
+RUN_API=false
+RUN_UI=false
+RUN_PERFORMANCE=true
+PERF_THREADS=1
+PERF_RAMP_UP=1
+PERF_LOOPS=1
+```
+
+确认冒烟通过后，再执行基线构建：
+
+```text
+RUN_API=false
+RUN_UI=false
+RUN_PERFORMANCE=true
+PERF_THREADS=5
+PERF_RAMP_UP=10
+PERF_LOOPS=2
+PERF_MAX_ERROR_RATE=0
+PERF_MAX_P95_MS=2000
+```
+
+流水线会把 `reports/jmeter/result.jtl` 和 `reports/jmeter/html/` 归档，并调用 `performance/check_jtl.py` 执行错误率/P95 质量门禁。Jenkins 页面显示 JMeter HTML 报告还需要安装 **HTML Publisher Plugin**；否则会出现 `No such DSL method 'publishHTML'`。Allure 报告仍需要安装 **Allure Jenkins Plugin** 并配置 Allure Commandline。
+
+### 将账号密码迁移到 Jenkins Credentials
+
+当前 Jenkinsfile 的 `admin/admin123` 仅用于本地演示。上传到 GitHub 或使用共享 Jenkins 前，建议：
+
+1. Jenkins 中进入 `Manage Jenkins -> Credentials`，新增 `Username with password`；
+2. 凭据 ID 例如填写 `ruoyi-test-account`；
+3. 后续将 Jenkinsfile 的默认账号改为 `withCredentials` 注入，并通过环境变量传给 pytest/JMeter；
+4. 不要把真实密码、生产地址或个人凭据提交到 GitHub。
+
+完成凭据迁移前，不要把包含真实账号密码的 Jenkinsfile 推送到公开仓库。
