@@ -1,5 +1,4 @@
 ﻿pipeline {
-    // agent any 会在当前Jenkins主机运行（Windows）
     agent any
     options {
         timestamps()
@@ -21,8 +20,7 @@
                     npm --version
                     java -version
                     mvn --version
-                    # 使用jmeter bat绝对路径校验版本
-                    D:\apache-jmeter-5.6.3\bin\jmeter.bat -v
+                    D:/apache-jmeter-5.6.3/bin/jmeter.bat -v
                 '''
             }
         }
@@ -64,7 +62,7 @@
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
-                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results'
+                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results-api'
                     New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
                     Push-Location 'automation/api'
                     try {
@@ -80,7 +78,7 @@
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
-                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results'
+                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results-ui'
                     New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
                     Push-Location 'automation/ui'
                     try {
@@ -106,8 +104,7 @@
                     if (Test-Path -LiteralPath $jtl) {
                         Remove-Item -LiteralPath $jtl -Force
                     }
-                    # ========== 这里替换成你的JMeter完整bat路径 ==========
-                    D:\apache-jmeter-5.6.3\bin\jmeter.bat -n `
+                    D:/apache-jmeter-5.6.3/bin/jmeter.bat -n `
                         -t 'automation/ui/performance/mall_product_flow.jmx' `
                         -l $jtl `
                         -e `
@@ -135,7 +132,10 @@
             allure(
                 includeProperties: false,
                 jdk: '',
-                results: [[path: 'reports/allure-results']]
+                results: [
+                    [path: 'reports/allure-results-api'],
+                    [path: 'reports/allure-results-ui']
+                ]
             )
             publishHTML(target: [
                 allowMissing: true,
