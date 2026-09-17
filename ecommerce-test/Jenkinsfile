@@ -1,20 +1,17 @@
 ﻿pipeline {
-    // Jenkins 节点需要是 Windows，并且 PATH 中包含 Python、Node.js、Java、Maven、JMeter。
+    // agent any 会在当前Jenkins主机运行（Windows）
     agent any
-
     options {
         timestamps()
         skipDefaultCheckout(true)
         disableConcurrentBuilds()
     }
-
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
         stage('Check Tools') {
             steps {
                 powershell '''
@@ -24,11 +21,11 @@
                     npm --version
                     java -version
                     mvn --version
-                    jmeter -v
+                    # 使用jmeter bat绝对路径校验版本
+                    D:\apache-jmeter-5.6.3\bin\jmeter.bat -v
                 '''
             }
         }
-
         stage('Prepare Test Dependencies') {
             steps {
                 powershell '''
@@ -39,7 +36,6 @@
                 '''
             }
         }
-
         stage('Check Application Services') {
             steps {
                 powershell '''
@@ -64,7 +60,6 @@
                 '''
             }
         }
-
         stage('API Tests') {
             steps {
                 powershell '''
@@ -81,7 +76,6 @@
                 '''
             }
         }
-
         stage('UI Tests') {
             steps {
                 powershell '''
@@ -98,7 +92,6 @@
                 '''
             }
         }
-
         stage('JMeter Performance Test') {
             steps {
                 powershell '''
@@ -113,15 +106,14 @@
                     if (Test-Path -LiteralPath $jtl) {
                         Remove-Item -LiteralPath $jtl -Force
                     }
-
-                    jmeter -n `
+                    # ========== 这里替换成你的JMeter完整bat路径 ==========
+                    D:\apache-jmeter-5.6.3\bin\jmeter.bat -n `
                         -t 'automation/ui/performance/mall_product_flow.jmx' `
                         -l $jtl `
                         -e `
                         -o $reportDir `
                         '-Jjmeter.save.saveservice.output_format=csv'
                     if ($LASTEXITCODE -ne 0) { throw 'JMeter process failed.' }
-
                     if (-not (Test-Path -LiteralPath $jtl)) {
                         throw "JMeter result file was not generated: $jtl"
                     }
@@ -137,17 +129,14 @@
             }
         }
     }
-
     post {
         always {
             archiveArtifacts artifacts: 'reports/**/*,automation/api/reports/**/*,automation/ui/reports/**/*', allowEmptyArchive: true
-
             allure(
                 includeProperties: false,
                 jdk: '',
                 results: [[path: 'reports/allure-results']]
             )
-
             publishHTML(target: [
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
