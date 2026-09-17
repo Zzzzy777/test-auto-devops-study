@@ -1,12 +1,17 @@
-﻿node {
-    timestamps {
-        def buildSuccess = true
-        try {
-            stage('Checkout') {
+﻿pipeline {
+    agent any
+    options {
+        timestamps()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
                 checkout scm
             }
-
-            stage('Check Tools') {
+        }
+        stage('Check Tools') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     python --version
@@ -17,8 +22,9 @@
                     D:/apache-jmeter-5.6.3/bin/jmeter.bat -v
                 '''
             }
-
-            stage('Prepare Test Dependencies') {
+        }
+        stage('Prepare Test Dependencies') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     python -m pip install -r automation/api/requirements.txt
@@ -26,8 +32,9 @@
                     python -m playwright install chromium
                 '''
             }
-
-            stage('Check Application Services') {
+        }
+        stage('Check Application Services') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $checks = @(
@@ -49,8 +56,9 @@
                     }
                 '''
             }
-
-            stage('API Tests') {
+        }
+        stage('API Tests') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results-api'
@@ -64,8 +72,9 @@
                     }
                 '''
             }
-
-            stage('UI Tests') {
+        }
+        stage('UI Tests') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results-ui'
@@ -79,8 +88,9 @@
                     }
                 '''
             }
-
-            stage('JMeter Performance Test') {
+        }
+        stage('JMeter Performance Test') {
+            steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $resultDir = Join-Path $env:WORKSPACE 'reports/jmeter'
@@ -108,30 +118,27 @@
                     }
                 '''
             }
-        } catch (Exception e) {
-            buildSuccess = false
-            throw e
-        } finally {
-            // 等价于 post always：无论成功失败都执行报告归档
-            stage('Archive Reports') {
-                archiveArtifacts artifacts: 'reports/**/*,automation/api/reports/**/*,automation/ui/reports/**/*', allowEmptyArchive: true
-                allure(
-                    includeProperties: false,
-                    jdk: '',
-                    results: [
-                        [path: 'reports/allure-results-api'],
-                        [path: 'reports/allure-results-ui']
-                    ]
-                )
-                publishHTML(target: [
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'reports/jmeter/mall_product_flow',
-                    reportFiles: 'index.html',
-                    reportName: 'JMeter Performance Report'
-                ])
-            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'reports/**/*,automation/api/reports/**/*,automation/ui/reports/**/*', allowEmptyArchive: true
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [
+                    [path: 'reports/allure-results-api'],
+                    [path: 'reports/allure-results-ui']
+                ]
+            )
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'reports/jmeter/mall_product_flow',
+                reportFiles: 'index.html',
+                reportName: 'JMeter Performance Report'
+            ])
         }
     }
 }
