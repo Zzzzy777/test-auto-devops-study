@@ -90,7 +90,8 @@ pipeline {
         PIP_INDEX_URL = "${params.PIP_INDEX_URL}"
         PIP_DEFAULT_TIMEOUT = '120'
         PIP_RETRIES = '5'
-        PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT = '120000'
+        // 复用 Jenkins 主机上的公共 Playwright 浏览器缓存，不在流水线中下载浏览器。
+        PLAYWRIGHT_BROWSERS_PATH = 'C:/ProgramData/ms-playwright'
         PYTHON_CMD = "${params.PYTHON_CMD}"
         JMETER_CMD = "${params.JMETER_CMD}"
         PERF_THREADS = "${params.PERF_THREADS}"
@@ -258,23 +259,25 @@ pipeline {
                         throw 'UI 自动化测试依赖安装失败。'
                     }
 
-                    # CI 直接复用 Windows 已安装的 Microsoft Edge。
-                    # Edge 基于 Chromium，Playwright 可通过 msedge channel 驱动，
-                    # 因此无需执行 `playwright install chromium` 下载约 200 MB 浏览器。
-                    $edgeCandidates = @(
-                        'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-                        'C:/Program Files/Microsoft/Edge/Application/msedge.exe'
-                    )
-                    $edgePath = $edgeCandidates |
-                        Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
-                        Select-Object -First 1
-                    if (-not $edgePath) {
-                        throw 'Jenkins Agent 未找到 Microsoft Edge，无法执行 UI 自动化测试。'
+                    # Playwright 1.62.0 对应 Chromium v1234。
+                    # 浏览器已预先放在 Jenkins 公共缓存中，构建时只校验，不执行下载。
+                    $chromium = Join-Path $env:PLAYWRIGHT_BROWSERS_PATH 'chromium-1234/chrome-win64/chrome.exe'
+                    $headlessShell = Join-Path $env:PLAYWRIGHT_BROWSERS_PATH 'chromium_headless_shell-1234/chrome-headless-shell-win64/chrome-headless-shell.exe'
+                    if (-not (Test-Path -LiteralPath $chromium -PathType Leaf)) {
+                        throw "Playwright Chromium 缓存不存在: $chromium"
+                    }
+                    if (-not (Test-Path -LiteralPath $headlessShell -PathType Leaf)) {
+                        throw "Playwright Chromium Headless Shell 缓存不存在: $headlessShell"
+                    }
+
+                    & $python -c "import importlib.metadata as m; assert m.version('playwright') == '1.62.0'; print('Playwright:', m.version('playwright'))"
+                    if ($LASTEXITCODE -ne 0) {
+                        throw 'Playwright 版本检查失败，要求版本为 1.62.0。'
                     }
 
                     Write-Host "Python 虚拟环境: $venv"
-                    Write-Host "Playwright 复用系统 Edge: $edgePath"
-                    Write-Host '[OK] Python、pytest、Allure 和 Playwright 环境准备完成（无需下载 Chromium）'
+                    Write-Host "Playwright 浏览器缓存: $env:PLAYWRIGHT_BROWSERS_PATH"
+                    Write-Host '[OK] Python、pytest、Allure 和 Playwright Chromium 环境准备完成（无需下载浏览器）'
                 '''
             }
         }
@@ -414,10 +417,9 @@ pipeline {
 
                     Push-Location (Join-Path $project 'automation/ui')
                     try {
-                        # Playwright 浏览器类型仍是 Chromium，但通过 msedge channel
-                        # 直接启动系统 Edge；无头模式适合 Jenkins 服务环境。
+                        # pytest.ini 已指定 --browser chromium；Playwright 会从
+                        # PLAYWRIGHT_BROWSERS_PATH 启动预装的 Chromium v1234。
                         & $python -m pytest -q `
-                            --browser-channel msedge `
                             --tb=short `
                             --alluredir="$allureDir" `
                             --junitxml="$junitFile"
