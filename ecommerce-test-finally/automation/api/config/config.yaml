@@ -1,0 +1,11 @@
+admin:
+  base_url: "http://localhost:8082"
+  username: "admin"
+  password: "macro123"
+
+portal:
+  base_url: "http://localhost:8085"
+  username: "test"
+  password: "123456"
+
+timeout: 15

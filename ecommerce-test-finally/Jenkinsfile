@@ -1,0 +1,161 @@
+﻿pipeline {
+    // Jenkins 节点需要是 Windows，并且 PATH 中包含 Python、Node.js、Java、Maven、JMeter。
+    agent any
+
+    options {
+        timestamps()
+        skipDefaultCheckout(true)
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Check Tools') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    python --version
+                    node --version
+                    npm --version
+                    java -version
+                    mvn --version
+                    jmeter -v
+                '''
+            }
+        }
+
+        stage('Prepare Test Dependencies') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    python -m pip install -r automation/api/requirements.txt
+                    python -m pip install -r automation/ui/requirements.txt
+                    python -m playwright install chromium
+                '''
+            }
+        }
+
+        stage('Check Application Services') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $checks = @(
+                        @{ Name = 'Mall portal API'; Url = 'http://127.0.0.1:8085/actuator/health' },
+                        @{ Name = 'Admin API'; Url = 'http://127.0.0.1:8082/actuator/health' },
+                        @{ Name = 'Mall frontend'; Url = 'http://127.0.0.1:8060/' },
+                        @{ Name = 'Admin frontend'; Url = 'http://127.0.0.1:8090/' }
+                    )
+                    foreach ($check in $checks) {
+                        try {
+                            $response = Invoke-WebRequest -Uri $check.Url -UseBasicParsing -TimeoutSec 20
+                            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 500) {
+                                throw "HTTP $($response.StatusCode)"
+                            }
+                            Write-Host "[OK] $($check.Name): $($response.StatusCode)"
+                        } catch {
+                            throw "Service check failed: $($check.Name) ($($check.Url)): $($_.Exception.Message)"
+                        }
+                    }
+                '''
+            }
+        }
+
+        stage('API Tests') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results'
+                    New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
+                    Push-Location 'automation/api'
+                    try {
+                        python -m pytest -q --alluredir="$allureDir"
+                        if ($LASTEXITCODE -ne 0) { throw 'API tests failed.' }
+                    } finally {
+                        Pop-Location
+                    }
+                '''
+            }
+        }
+
+        stage('UI Tests') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $allureDir = Join-Path $env:WORKSPACE 'reports/allure-results'
+                    New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
+                    Push-Location 'automation/ui'
+                    try {
+                        python -m pytest -q --browser chromium --headless --alluredir="$allureDir"
+                        if ($LASTEXITCODE -ne 0) { throw 'UI tests failed.' }
+                    } finally {
+                        Pop-Location
+                    }
+                '''
+            }
+        }
+
+        stage('JMeter Performance Test') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = 'Stop'
+                    $resultDir = Join-Path $env:WORKSPACE 'reports/jmeter'
+                    $reportDir = Join-Path $resultDir 'mall_product_flow'
+                    $jtl = Join-Path $resultDir 'mall_product_flow.jtl'
+                    New-Item -ItemType Directory -Force -Path $resultDir | Out-Null
+                    if (Test-Path -LiteralPath $reportDir) {
+                        Remove-Item -LiteralPath $reportDir -Recurse -Force
+                    }
+                    if (Test-Path -LiteralPath $jtl) {
+                        Remove-Item -LiteralPath $jtl -Force
+                    }
+
+                    jmeter -n `
+                        -t 'automation/ui/performance/mall_product_flow.jmx' `
+                        -l $jtl `
+                        -e `
+                        -o $reportDir `
+                        '-Jjmeter.save.saveservice.output_format=csv'
+                    if ($LASTEXITCODE -ne 0) { throw 'JMeter process failed.' }
+
+                    if (-not (Test-Path -LiteralPath $jtl)) {
+                        throw "JMeter result file was not generated: $jtl"
+                    }
+                    $rows = @(Import-Csv -LiteralPath $jtl)
+                    if ($rows.Count -eq 0) { throw 'JMeter generated an empty result file.' }
+                    $failed = @($rows | Where-Object { $_.success -ne 'true' })
+                    Write-Host "JMeter samples: $($rows.Count); failed samples: $($failed.Count)"
+                    if ($failed.Count -gt 0) {
+                        $failed | Select-Object -First 10 | Format-Table | Out-String | Write-Host
+                        throw 'JMeter contains failed samples.'
+                    }
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'reports/**/*,automation/api/reports/**/*,automation/ui/reports/**/*', allowEmptyArchive: true
+
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'reports/allure-results']]
+            )
+
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'reports/jmeter/mall_product_flow',
+                reportFiles: 'index.html',
+                reportName: 'JMeter Performance Report'
+            ])
+        }
+    }
+}

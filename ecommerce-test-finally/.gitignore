@@ -1,0 +1,43 @@
+﻿# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Python generated files and environments
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+*.py[cod]
+
+# Node/Maven build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/target/
+**/build/
+*.tsbuildinfo
+
+# Test reports and runtime output
+runtime/
+**/reports/
+**/screenshots/
+*.log
+*.pid
+
+# Local environment overrides
+.env
+.env.*.local
+*.local
+
+# IDE and local backup files
+*.iml
+*.suo
+*.user
+*.codex-backup
+
+# JMeter result files
+*.jtl
+*.csv

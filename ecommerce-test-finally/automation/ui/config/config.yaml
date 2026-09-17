@@ -1,0 +1,32 @@
+# 商城前台 UI 配置
+portal:
+  # 商城前端地址
+  base_url: "http://localhost:8060"
+
+  # 商城登录账号
+  username: "test"
+
+  # 商城登录密码
+  password: "123456"
+
+# 后台管理 UI 配置
+admin:
+  # 后台前端地址
+  base_url: "http://localhost:8090"
+
+  # 后台登录账号
+  username: "admin"
+
+  # 后台登录密码
+  password: "macro123"
+
+# 浏览器配置
+browser:
+  # 是否无头运行
+  headless: false
+
+  # 页面操作超时时间，单位毫秒
+  timeout: 15000
+
+  # 页面截图目录
+  screenshot_dir: "screenshots"
