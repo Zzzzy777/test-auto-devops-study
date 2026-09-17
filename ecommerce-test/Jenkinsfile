@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     // 项目 2 使用 PowerShell、Playwright 和 Windows 版 JMeter，
     // 因此 Jenkins Agent 必须是 Windows 节点。
     agent any
