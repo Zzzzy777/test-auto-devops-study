@@ -28,6 +28,11 @@ pipeline {
             description: '是否执行 JMeter 商品浏览链路性能测试'
         )
         string(
+            name: 'PIP_INDEX_URL',
+            defaultValue: 'https://pypi.tuna.tsinghua.edu.cn/simple',
+            description: 'Python 依赖下载源；网络正常时也可填写 https://pypi.org/simple'
+        )
+        string(
             name: 'PYTHON_CMD',
             defaultValue: 'python',
             description: 'Windows Agent 上的 Python 命令；也可以填写完整路径'
@@ -82,6 +87,10 @@ pipeline {
         PIP_NO_INPUT = '1'
 
         // 这些变量来自 Jenkins 参数。
+        PIP_INDEX_URL = "${params.PIP_INDEX_URL}"
+        PIP_DEFAULT_TIMEOUT = '120'
+        PIP_RETRIES = '5'
+        PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT = '120000'
         PYTHON_CMD = "${params.PYTHON_CMD}"
         JMETER_CMD = "${params.JMETER_CMD}"
         PERF_THREADS = "${params.PERF_THREADS}"
@@ -234,32 +243,38 @@ pipeline {
                         }
                     }
 
-                    & $python -m pip install --upgrade pip
+                    & $python -m pip install --disable-pip-version-check --no-input --prefer-binary --timeout 120 --retries 5 --index-url $env:PIP_INDEX_URL --upgrade pip
                     if ($LASTEXITCODE -ne 0) {
                         throw 'pip 升级失败。'
                     }
 
-                    & $python -m pip install -r (Join-Path $project 'automation/api/requirements.txt')
+                    & $python -m pip install --disable-pip-version-check --no-input --prefer-binary --timeout 120 --retries 5 --index-url $env:PIP_INDEX_URL -r (Join-Path $project 'automation/api/requirements.txt')
                     if ($LASTEXITCODE -ne 0) {
                         throw '接口自动化测试依赖安装失败。'
                     }
 
-                    & $python -m pip install -r (Join-Path $project 'automation/ui/requirements.txt')
+                    & $python -m pip install --disable-pip-version-check --no-input --prefer-binary --timeout 120 --retries 5 --index-url $env:PIP_INDEX_URL -r (Join-Path $project 'automation/ui/requirements.txt')
                     if ($LASTEXITCODE -ne 0) {
                         throw 'UI 自动化测试依赖安装失败。'
                     }
 
-                    $browserPath = Join-Path $project '.playwright-browsers'
-                    New-Item -ItemType Directory -Force -Path $browserPath | Out-Null
-                    $env:PLAYWRIGHT_BROWSERS_PATH = $browserPath
-                    & $python -m playwright install chromium
-                    if ($LASTEXITCODE -ne 0) {
-                        throw 'Playwright Chromium 安装失败。'
+                    # CI 直接复用 Windows 已安装的 Microsoft Edge。
+                    # Edge 基于 Chromium，Playwright 可通过 msedge channel 驱动，
+                    # 因此无需执行 `playwright install chromium` 下载约 200 MB 浏览器。
+                    $edgeCandidates = @(
+                        'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+                        'C:/Program Files/Microsoft/Edge/Application/msedge.exe'
+                    )
+                    $edgePath = $edgeCandidates |
+                        Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
+                        Select-Object -First 1
+                    if (-not $edgePath) {
+                        throw 'Jenkins Agent 未找到 Microsoft Edge，无法执行 UI 自动化测试。'
                     }
 
                     Write-Host "Python 虚拟环境: $venv"
-                    Write-Host "Playwright 浏览器目录: $browserPath"
-                    Write-Host '[OK] Python、pytest、Allure 和 Playwright 环境准备完成'
+                    Write-Host "Playwright 复用系统 Edge: $edgePath"
+                    Write-Host '[OK] Python、pytest、Allure 和 Playwright 环境准备完成（无需下载 Chromium）'
                 '''
             }
         }
@@ -395,16 +410,14 @@ pipeline {
                     $python = Join-Path $project '.ci-venv/Scripts/python.exe'
                     $allureDir = Join-Path $project 'reports/allure-results-ui'
                     $junitFile = Join-Path $project 'reports/ui-junit.xml'
-                    $browserPath = Join-Path $project '.playwright-browsers'
                     New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
-                    $env:PLAYWRIGHT_BROWSERS_PATH = $browserPath
 
                     Push-Location (Join-Path $project 'automation/ui')
                     try {
-                        # 不传 --headed，pytest-playwright 默认使用无头模式，
-                        # 适合 Jenkins 无桌面环境；--browser chromium 明确指定浏览器。
+                        # Playwright 浏览器类型仍是 Chromium，但通过 msedge channel
+                        # 直接启动系统 Edge；无头模式适合 Jenkins 服务环境。
                         & $python -m pytest -q `
-                            --browser chromium `
+                            --browser-channel msedge `
                             --tb=short `
                             --alluredir="$allureDir" `
                             --junitxml="$junitFile"
