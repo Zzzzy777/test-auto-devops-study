@@ -128,7 +128,8 @@ pipeline {
                         (Join-Path $project 'automation/ui/requirements.txt'),
                         (Join-Path $project 'automation/ui/pytest.ini'),
                         (Join-Path $project 'automation/ui/tests'),
-                        (Join-Path $project 'automation/ui/performance/mall_product_flow.jmx')
+                        (Join-Path $project 'automation/ui/performance/mall_product_flow.jmx'),
+                        (Join-Path $project 'scripts/generate_jmeter_static_report.ps1')
                     )
 
                     foreach ($item in $requiredFiles) {
@@ -574,6 +575,23 @@ pipeline {
                     $p95Index = [math]::Ceiling($elapsedValues.Count * 0.95) - 1
                     if ($p95Index -lt 0) { $p95Index = 0 }
                     $p95 = [int]$elapsedValues[$p95Index]
+
+                    # JMeter 原生 HTML Dashboard 依赖 JavaScript，Jenkins 默认 CSP 可能导致页面空白。
+                    # 额外生成一个纯静态摘要 index.html，并保留原生 Dashboard 为 dashboard.html。
+                    $summaryScript = Join-Path $project 'scripts/generate_jmeter_static_report.ps1'
+                    & $summaryScript `
+                        -JtlPath $jtl `
+                        -ReportDir $reportDir `
+                        -BuildNumber $env:BUILD_NUMBER `
+                        -Threads $threads `
+                        -RampUp $rampUp `
+                        -Loops $loops `
+                        -MaxErrorRate $maxErrorRate `
+                        -MaxP95Ms $maxP95
+
+                    if (-not (Test-Path -LiteralPath (Join-Path $reportDir 'index.html'))) {
+                        throw 'JMeter 静态摘要报告生成失败。'
+                    }
 
                     Write-Host "JMeter 总样本: $($rows.Count)"
                     Write-Host "JMeter 失败样本: $($failed.Count)"
