@@ -68,6 +68,26 @@ PORTAL_CONFIG = CONFIG["portal"]
 client = HttpClient(timeout=CONFIG.get("timeout", 15))
 
 
+# 真实订单流程使用的固定测试商品。
+# 当购物车为空时，由用例自动加入该商品，避免依赖手工数据。
+TEST_PRODUCT = {
+    "price": 5499,
+    "productId": 29,
+    "productName": "Apple iPhone 8 Plus",
+    "productSkuCode": "201808270029001",
+    "productSkuId": 106,
+    "productSubTitle": (
+        "【限时限量抢购】Apple产品年中狂欢节，好物尽享，美在智慧！"
+        "速来 >> 勾选[保障服务][原厂保2年]，获得AppleCare+全方位服务计划，"
+        "原厂延保售后无忧。"
+    ),
+    "quantity": 1,
+    "sp1": "金色",
+    "sp2": "32G",
+    "sp3": None,
+}
+
+
 # ============================================================
 # 二、公共方法
 # ============================================================
@@ -256,6 +276,68 @@ def add_cart_item(
     )
 
     return assert_success(response)
+
+
+def delete_cart_item(
+    headers: Dict[str, str],
+    cart_id: int,
+) -> Dict[str, Any]:
+    """删除指定购物车记录。"""
+
+    response = client.request(
+        method="POST",
+        url=f"{PORTAL_CONFIG['base_url']}/cart/delete",
+        headers=headers,
+        params={"ids": cart_id},
+    )
+
+    return assert_success(response)
+
+
+def ensure_cart_item(
+    headers: Dict[str, str],
+) -> tuple[Dict[str, Any], bool]:
+    """
+    确保订单流程至少有一件购物车商品。
+
+    如果购物车为空，则自动加入固定测试商品。
+    返回购物车商品和“是否由本测试创建”的标记。
+    """
+
+    cart_items = get_cart_items(headers)
+
+    if cart_items:
+        return cart_items[0], False
+
+    add_cart_item(
+        headers=headers,
+        payload=dict(TEST_PRODUCT),
+    )
+
+    prepared_items = get_cart_items(headers)
+    prepared_item = find_cart_item_by_sku(
+        prepared_items,
+        TEST_PRODUCT["productSkuId"],
+    )
+
+    assert prepared_item is not None, "测试商品加入购物车后未查询到。"
+
+    return prepared_item, True
+
+
+def remove_test_cart_item_if_present(
+    headers: Dict[str, str],
+) -> None:
+    """删除仍留在购物车中的固定测试商品。"""
+
+    current_items = get_cart_items(headers)
+    current_item = find_cart_item_by_sku(
+        current_items,
+        TEST_PRODUCT["productSkuId"],
+    )
+
+    if current_item is not None:
+        delete_cart_item(headers, current_item["id"])
 
 
 def update_cart_quantity(
@@ -611,6 +693,22 @@ def safe_cleanup_order(
         )
 
 
+def safe_remove_test_cart_item(
+    headers: Dict[str, str],
+) -> None:
+    """测试异常时安全删除由用例临时加入的商品。"""
+
+    try:
+        remove_test_cart_item_if_present(headers)
+
+    except Exception as error:
+        allure.attach(
+            str(error),
+            name="临时购物车商品清理失败",
+            attachment_type=allure.attachment_type.TEXT,
+        )
+
+
 def safe_restore_cart(
     headers: Dict[str, str],
     original_cart_item: Dict[str, Any],
@@ -644,63 +742,49 @@ def safe_restore_cart(
 @pytest.mark.order
 def test_generate_order_without_address():
     """
-    验证未选择收货地址时不能生成订单。
+    验证未选择收货地址时不能生成订单，且购物车数据不变。
 
-    同时验证失败后购物车中的商品没有被删除。
+    购物车为空时会自动加入测试商品，并在测试结束后删除，
+    因此该用例可单独执行，也不依赖其他用例的执行顺序。
     """
 
-    # 获取商城 Token
     headers = get_auth_headers()
-
-    # 查询测试前的购物车
-    before_cart_items = get_cart_items(headers)
-
-    assert before_cart_items, (
-        "当前购物车为空，无法执行缺少收货地址的下单测试。"
-    )
-
-    # 选择第一条购物车数据
-    cart_item = before_cart_items[0]
+    cart_item, created_by_test = ensure_cart_item(headers)
 
     cart_id = cart_item["id"]
     original_quantity = cart_item["quantity"]
 
-    # 不传收货地址 ID
-    response = generate_order(
-        headers=headers,
-        cart_id=cart_id,
-        address_id=None,
-    )
+    try:
+        response = generate_order(
+            headers=headers,
+            cart_id=cart_id,
+            address_id=None,
+        )
 
-    # 业务失败通常仍然返回 HTTP 200；
-    # 同时兼容后端直接返回 HTTP 500。
-    assert response.status_code in (200, 500)
+        # 业务失败通常返回 HTTP 200，也兼容后端直接返回 HTTP 500。
+        assert response.status_code in (200, 500)
 
-    body = parse_json(response)
+        body = parse_json(response)
+        assert body.get("code") != 200
+        assert body.get("message")
 
-    # 缺少地址不能返回业务成功
-    assert body.get("code") != 200
+        after_cart_items = get_cart_items(headers)
+        after_cart_item = next(
+            (
+                item
+                for item in after_cart_items
+                if item.get("id") == cart_id
+            ),
+            None,
+        )
 
-    # 应该返回错误信息
-    assert body.get("message")
+        assert after_cart_item is not None
+        assert after_cart_item.get("quantity") == original_quantity
 
-    # 再次查询购物车
-    after_cart_items = get_cart_items(headers)
-
-    # 失败后原购物车商品仍然应该存在
-    after_cart_item = next(
-        (
-            item
-            for item in after_cart_items
-            if item.get("id") == cart_id
-        ),
-        None,
-    )
-
-    assert after_cart_item is not None
-
-    # 商品数量也不应该发生变化
-    assert after_cart_item.get("quantity") == original_quantity
+    finally:
+        # 仅删除本用例为“空购物车”场景临时创建的商品。
+        if created_by_test:
+            safe_remove_test_cart_item(headers)
 
 
 @allure.feature("商城前台")
@@ -715,52 +799,28 @@ def test_order_create_cancel_delete_flow():
 
     流程：
 
-    1. 查询购物车；
-    2. 动态选择收货地址；
-    3. 生成真实订单；
-    4. 动态获取订单 ID；
-    5. 查询订单详情；
-    6. 验证购物车商品已删除；
-    7. 取消订单；
-    8. 验证订单状态为已关闭；
-    9. 删除测试订单；
-    10. 恢复测试前购物车商品。
+    1. 自动准备购物车商品；
+    2. 动态选择收货地址并生成真实订单；
+    3. 查询订单详情并验证购物车商品已移除；
+    4. 取消订单并验证已关闭；
+    5. 删除测试订单；
+    6. 按测试前状态恢复购物车。
     """
 
-    # 获取商城 Token
     headers = get_auth_headers()
 
-    # 查询测试前购物车
-    original_cart_items = get_cart_items(headers)
-
-    assert original_cart_items, (
-        "当前购物车为空，无法执行真实下单测试。"
-        "请先在商城中加入一件商品。"
-    )
-
-    # 选择第一条购物车商品作为下单商品
-    original_cart_item = original_cart_items[0]
-
-    # 动态获取购物车 ID
+    # 不再要求用户事先手工加入商品。
+    original_cart_item, created_by_test = ensure_cart_item(headers)
     cart_id = original_cart_item["id"]
 
-    # 动态选择收货地址
     receive_address = select_receive_address(headers)
-
-    # 动态获取地址 ID
     address_id = receive_address["id"]
 
-    # 保存测试过程中生成的订单 ID
     order_id = None
-
-    # 标记正常清理是否已经完成
     cleanup_completed = False
 
     try:
-        # ----------------------------------------------------
-        # 第一步：生成真实订单
-        # ----------------------------------------------------
-
+        # 第一步：生成真实订单。
         response = generate_order(
             headers=headers,
             cart_id=cart_id,
@@ -768,130 +828,85 @@ def test_order_create_cancel_delete_flow():
         )
 
         body = assert_success(response)
-
-        # 下单接口响应 data 应该是字典
         order_result = body.get("data")
         assert isinstance(order_result, dict)
 
-        # 获取订单对象
         order = order_result.get("order")
         assert isinstance(order, dict)
 
-        # 动态获取订单 ID
         order_id = order.get("id")
         assert order_id is not None
-
-        # 校验订单编号
         assert order.get("orderSn")
-
-        # 新订单应该为待付款状态
         assert order.get("status") == 0
 
-        # 校验订单商品列表
         order_item_list = order_result.get("orderItemList")
         assert isinstance(order_item_list, list)
         assert order_item_list
 
-        # ----------------------------------------------------
-        # 第二步：查询订单详情
-        # ----------------------------------------------------
-
+        # 第二步：查询并校验订单详情。
         order_detail = get_order_detail(
             headers=headers,
             order_id=order_id,
         )
 
-        # 详情中的订单 ID 应与下单响应一致
         assert order_detail.get("id") == order_id
-
-        # 详情中的订单编号应与下单响应一致
         assert order_detail.get("orderSn") == order.get("orderSn")
-
-        # 新订单状态应为待付款
         assert order_detail.get("status") == 0
+        assert order_detail.get("receiverName") == receive_address.get("name")
 
-        # 收货地址信息应该正确
-        assert order_detail.get("receiverName") == receive_address.get(
-            "name"
-        )
-
-        # ----------------------------------------------------
-        # 第三步：验证下单商品已从购物车删除
-        # ----------------------------------------------------
-
+        # 第三步：下单商品应已从购物车移除。
         after_order_cart_items = get_cart_items(headers)
-
         assert all(
             item.get("id") != cart_id
             for item in after_order_cart_items
         )
 
-        # ----------------------------------------------------
-        # 第四步：取消订单
-        # ----------------------------------------------------
-
-        cancel_user_order(
-            headers=headers,
-            order_id=order_id,
-        )
-
-        # 重新查询订单详情
+        # 第四步：取消订单并验证状态为已关闭。
+        cancel_user_order(headers=headers, order_id=order_id)
         cancelled_detail = get_order_detail(
             headers=headers,
             order_id=order_id,
         )
-
-        # 状态 4 代表订单已关闭
         assert cancelled_detail.get("status") == 4
 
-        # ----------------------------------------------------
-        # 第五步：删除已关闭订单
-        # ----------------------------------------------------
-
-        delete_user_order(
-            headers=headers,
-            order_id=order_id,
-        )
-
-        # 查询当前可见订单 ID
+        # 第五步：删除已关闭订单。
+        delete_user_order(headers=headers, order_id=order_id)
         visible_order_ids = get_all_order_ids(headers)
-
-        # 逻辑删除后的订单不应继续出现在订单列表中
         assert order_id not in visible_order_ids
 
-        # ----------------------------------------------------
-        # 第六步：恢复购物车
-        # ----------------------------------------------------
-
-        restored_cart_item = restore_cart_item(
-            headers=headers,
-            original_cart_item=original_cart_item,
-        )
-
-        # 恢复后的 SKU 应与测试前一致
-        assert restored_cart_item.get(
-            "productSkuId"
-        ) == original_cart_item.get("productSkuId")
-
-        # 恢复后的数量应与测试前一致
-        assert restored_cart_item.get(
-            "quantity"
-        ) == original_cart_item.get("quantity")
-
-        # 正常流程和数据恢复均已完成
-        cleanup_completed = True
-
-    finally:
-        # 如果测试中途失败，尝试清理订单并恢复购物车。
-        #
-        # 如果整个流程已经正常完成，则不需要重复清理。
-        if not cleanup_completed:
-            safe_cleanup_order(
-                headers=headers,
-                order_id=order_id,
-            )
-
-            safe_restore_cart(
+        # 第六步：只恢复测试前本来就存在的购物车商品。
+        # 如果商品是本用例因空购物车而创建的，下单后保持为空才是正确恢复。
+        if not created_by_test:
+            restored_cart_item = restore_cart_item(
                 headers=headers,
                 original_cart_item=original_cart_item,
             )
+
+            assert restored_cart_item.get(
+                "productSkuId"
+            ) == original_cart_item.get("productSkuId")
+            assert restored_cart_item.get(
+                "quantity"
+            ) == original_cart_item.get("quantity")
+        else:
+            current_items = get_cart_items(headers)
+            assert find_cart_item_by_sku(
+                current_items,
+                TEST_PRODUCT["productSkuId"],
+            ) is None
+
+        cleanup_completed = True
+
+    finally:
+        if not cleanup_completed:
+            # 中途失败时尽量取消、删除测试订单。
+            safe_cleanup_order(headers=headers, order_id=order_id)
+
+            # 严格恢复测试开始前的购物车状态。
+            if created_by_test:
+                safe_remove_test_cart_item(headers)
+            else:
+                safe_restore_cart(
+                    headers=headers,
+                    original_cart_item=original_cart_item,
+                )

@@ -79,6 +79,26 @@ PORTAL_CONFIG = CONFIG["portal"]
 client = HttpClient(timeout=CONFIG.get("timeout", 15))
 
 
+# 订单测试使用的固定商品。
+# 该商品与购物车模块中已经验证通过的测试商品保持一致。
+TEST_PRODUCT = {
+    "price": 5499,
+    "productId": 29,
+    "productName": "Apple iPhone 8 Plus",
+    "productSkuCode": "201808270029001",
+    "productSkuId": 106,
+    "productSubTitle": (
+        "【限时限量抢购】Apple产品年中狂欢节，好物尽享，美在智慧！"
+        "速来 >> 勾选[保障服务][原厂保2年]，获得AppleCare+全方位服务计划，"
+        "原厂延保售后无忧。"
+    ),
+    "quantity": 1,
+    "sp1": "金色",
+    "sp2": "32G",
+    "sp3": None,
+}
+
+
 # ============================================================
 # 二、公共方法
 # ============================================================
@@ -231,6 +251,97 @@ def get_cart_items(headers: Dict[str, str]) -> List[Dict[str, Any]]:
     assert isinstance(cart_items, list)
 
     return cart_items
+
+
+def add_test_product_to_cart(headers: Dict[str, str]) -> None:
+    """购物车为空时，加入一件固定测试商品。"""
+
+    response = client.request(
+        method="POST",
+        url=f"{PORTAL_CONFIG['base_url']}/cart/add",
+        headers={
+            **headers,
+            "Content-Type": "application/json",
+        },
+        json=dict(TEST_PRODUCT),
+    )
+
+    assert_success(response)
+
+
+def delete_cart_item(
+    headers: Dict[str, str],
+    cart_id: int,
+) -> None:
+    """删除指定购物车记录，用于恢复测试前的空购物车状态。"""
+
+    response = client.request(
+        method="POST",
+        url=f"{PORTAL_CONFIG['base_url']}/cart/delete",
+        headers=headers,
+        params={"ids": cart_id},
+    )
+
+    assert_success(response)
+
+
+def ensure_cart_item(
+    headers: Dict[str, str],
+) -> tuple[Dict[str, Any], bool]:
+    """
+    保证订单测试至少有一条可用购物车数据。
+
+    返回：
+
+    1. 本次测试使用的购物车商品；
+    2. 该商品是否由当前测试临时创建。
+    """
+
+    cart_items = get_cart_items(headers)
+
+    # 已有购物车商品时直接使用，避免改变用户原有数据。
+    if cart_items:
+        return cart_items[0], False
+
+    # 空购物车时自动准备测试数据，消除测试顺序和手工数据依赖。
+    add_test_product_to_cart(headers)
+
+    prepared_items = get_cart_items(headers)
+    prepared_item = next(
+        (
+            item
+            for item in prepared_items
+            if item.get("productSkuId") == TEST_PRODUCT["productSkuId"]
+        ),
+        None,
+    )
+
+    assert prepared_item is not None, "测试商品加入购物车后未查询到。"
+
+    return prepared_item, True
+
+
+def cleanup_created_cart_item(
+    headers: Dict[str, str],
+    created_by_test: bool,
+) -> None:
+    """仅清理当前测试临时创建的购物车商品。"""
+
+    if not created_by_test:
+        return
+
+    current_items = get_cart_items(headers)
+    current_item = next(
+        (
+            item
+            for item in current_items
+            if item.get("productSkuId") == TEST_PRODUCT["productSkuId"]
+        ),
+        None,
+    )
+
+    if current_item is not None:
+        delete_cart_item(headers, current_item["id"])
 
 
 def get_order_page(
@@ -454,56 +565,39 @@ def test_generate_confirm_order_success():
     """
     验证可以根据购物车商品生成订单确认单。
 
-    真实接口：
+    用例会自行准备购物车数据：
 
-    POST /order/generateConfirmOrder
-
-    该接口只生成确认单，不会真正生成订单。
+    1. 购物车已有商品时，直接使用原商品；
+    2. 购物车为空时，自动加入固定测试商品；
+    3. 如果商品由本用例创建，结束后删除，恢复测试前的空状态。
     """
 
-    # 获取商城 Token
     headers = get_auth_headers()
 
-    # 查询当前购物车
-    cart_items = get_cart_items(headers)
-
-    # 当前测试环境中需要至少有一件购物车商品
-    assert cart_items, (
-        "当前购物车为空，无法生成订单确认单。"
-        "请先在商城中加入一件商品后重新执行。"
-    )
-
-    # 取第一件购物车商品的购物车 ID
-    cart_id = cart_items[0].get("id")
-
-    # 购物车 ID 必须存在
+    # 不再依赖手工预先加入商品。
+    cart_item, created_by_test = ensure_cart_item(headers)
+    cart_id = cart_item.get("id")
     assert cart_id is not None
 
-    # 生成确认单
-    confirm_data = generate_confirm_order(
-        headers=headers,
-        cart_ids=[cart_id],
-    )
+    try:
+        confirm_data = generate_confirm_order(
+            headers=headers,
+            cart_ids=[cart_id],
+        )
 
-    # 确认单应该包含购物车促销信息
-    assert "cartPromotionItemList" in confirm_data
+        assert "cartPromotionItemList" in confirm_data
+        assert "memberReceiveAddressList" in confirm_data
+        assert "couponHistoryDetailList" in confirm_data
+        assert "memberIntegration" in confirm_data
+        assert isinstance(confirm_data.get("calcAmount"), dict)
 
-    # 确认单应该包含收货地址列表
-    assert "memberReceiveAddressList" in confirm_data
+        promotion_items = confirm_data.get("cartPromotionItemList")
+        assert isinstance(promotion_items, list)
+        assert promotion_items
 
-    # 确认单应该包含优惠券信息列表
-    assert "couponHistoryDetailList" in confirm_data
-
-    # 确认单应该包含积分信息
-    assert "memberIntegration" in confirm_data
-
-    # 确认单应该包含金额计算信息
-    assert isinstance(confirm_data.get("calcAmount"), dict)
-
-    # 当前选中的购物车商品应该存在于确认单中
-    promotion_items = confirm_data.get("cartPromotionItemList")
-    assert isinstance(promotion_items, list)
-    assert promotion_items
+    finally:
+        # 确认单接口不会真正下单；若本用例临时加了商品，则主动删除。
+        cleanup_created_cart_item(headers, created_by_test)
 
 
 @allure.feature("商城前台")
