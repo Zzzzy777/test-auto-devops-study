@@ -1,21 +1,97 @@
 ﻿pipeline {
-    // Windows Jenkins Agent。
-    // 被测系统需要在 Jenkins Agent 本机提前启动：
-    // 后台 API 8082、商城 API 8085、商城前端 8060、后台前端 8090。
+    // 项目 2 使用 PowerShell、Playwright 和 Windows 版 JMeter，
+    // 因此 Jenkins Agent 必须是 Windows 节点。
     agent any
 
     options {
         timestamps()
         skipDefaultCheckout(true)
         disableConcurrentBuilds()
+        timeout(time: 90, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
+    parameters {
+        booleanParam(
+            name: 'RUN_API',
+            defaultValue: true,
+            description: '是否执行接口自动化测试'
+        )
+        booleanParam(
+            name: 'RUN_UI',
+            defaultValue: true,
+            description: '是否执行商城前台 UI 自动化测试'
+        )
+        booleanParam(
+            name: 'RUN_PERFORMANCE',
+            defaultValue: true,
+            description: '是否执行 JMeter 商品浏览链路性能测试'
+        )
+        string(
+            name: 'PYTHON_CMD',
+            defaultValue: 'python',
+            description: 'Windows Agent 上的 Python 命令；也可以填写完整路径'
+        )
+        string(
+            name: 'JMETER_CMD',
+            defaultValue: 'D:/apache-jmeter-5.6.3/bin/jmeter.bat',
+            description: 'JMeter 命令或 jmeter.bat 的完整路径。Windows 路径请使用正斜杠 /'
+        )
+        string(
+            name: 'PERF_THREADS',
+            defaultValue: '10',
+            description: 'JMeter 并发线程数'
+        )
+        string(
+            name: 'PERF_RAMP_UP',
+            defaultValue: '10',
+            description: 'JMeter 启动线程时间，单位：秒'
+        )
+        string(
+            name: 'PERF_LOOPS',
+            defaultValue: '5',
+            description: '每个线程的循环次数'
+        )
+        string(
+            name: 'PERF_MAX_ERROR_RATE',
+            defaultValue: '0',
+            description: '允许的最大错误率，单位：百分比'
+        )
+        string(
+            name: 'PERF_MAX_P95_MS',
+            defaultValue: '2000',
+            description: '允许的最大 P95 响应时间，单位：毫秒'
+        )
     }
 
     environment {
-        // GitHub 仓库根目录下的项目目录。
+        // GitHub 仓库根目录下的项目 2 目录。
         PROJECT_DIR = 'ecommerce-test'
+
+        // 项目 2 本地部署端口：商城 API 8085、后台 API 8082、
+        // 商城前端 8060、后台前端 8090。
+        PORTAL_API_BASE_URL = 'http://127.0.0.1:8085'
+        ADMIN_API_BASE_URL = 'http://127.0.0.1:8082'
+        PORTAL_FRONTEND_BASE_URL = 'http://127.0.0.1:8060'
+        ADMIN_FRONTEND_BASE_URL = 'http://127.0.0.1:8090'
+
         PYTHONUTF8 = '1'
         PYTHONIOENCODING = 'utf-8'
+        PYTHONUNBUFFERED = '1'
         PIP_DISABLE_PIP_VERSION_CHECK = '1'
+        PIP_NO_INPUT = '1'
+
+        // 这些变量来自 Jenkins 参数。
+        PYTHON_CMD = "${params.PYTHON_CMD}"
+        JMETER_CMD = "${params.JMETER_CMD}"
+        PERF_THREADS = "${params.PERF_THREADS}"
+        PERF_RAMP_UP = "${params.PERF_RAMP_UP}"
+        PERF_LOOPS = "${params.PERF_LOOPS}"
+        PERF_MAX_ERROR_RATE = "${params.PERF_MAX_ERROR_RATE}"
+        PERF_MAX_P95_MS = "${params.PERF_MAX_P95_MS}"
+        RUN_API = "${params.RUN_API}"
+        RUN_UI = "${params.RUN_UI}"
+        RUN_PERFORMANCE = "${params.RUN_PERFORMANCE}"
     }
 
     stages {
@@ -29,20 +105,28 @@
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
+                    if ($env:OS -ne 'Windows_NT') {
+                        throw '本 Jenkinsfile 必须运行在 Windows Jenkins Agent 上。'
+                    }
+
                     $project = Join-Path $env:WORKSPACE $env:PROJECT_DIR
                     $requiredFiles = @(
                         (Join-Path $project 'Jenkinsfile'),
                         (Join-Path $project 'automation/api/requirements.txt'),
-                        (Join-Path $project 'automation/ui/requirements.txt'),
+                        (Join-Path $project 'automation/api/pytest.ini'),
                         (Join-Path $project 'automation/api/tests'),
+                        (Join-Path $project 'automation/ui/requirements.txt'),
+                        (Join-Path $project 'automation/ui/pytest.ini'),
                         (Join-Path $project 'automation/ui/tests'),
                         (Join-Path $project 'automation/ui/performance/mall_product_flow.jmx')
                     )
+
                     foreach ($item in $requiredFiles) {
                         if (-not (Test-Path -LiteralPath $item)) {
                             throw "项目文件不存在: $item"
                         }
                     }
+
                     Write-Host "项目目录: $project"
                     Write-Host '[OK] 项目结构检查通过'
                 '''
@@ -54,42 +138,78 @@
                 powershell '''
                     $ErrorActionPreference = 'Stop'
 
-                    $python = Get-Command python -ErrorAction SilentlyContinue
-                    if (-not $python) {
-                        throw 'Jenkins Agent 未找到 Python，请将 Python 加入系统 PATH。'
+                    $pythonCommand = $env:PYTHON_CMD.Trim()
+                    if ([string]::IsNullOrWhiteSpace($pythonCommand)) {
+                        $pythonCommand = 'python'
                     }
-                    & $python.Source --version
 
-                    $java = Get-Command java -ErrorAction SilentlyContinue
-                    if (-not $java) {
-                        throw 'Jenkins Agent 未找到 Java，JMeter 运行必须安装 Java。'
+                    $pythonPath = $null
+                    if (Test-Path -LiteralPath $pythonCommand -PathType Leaf) {
+                        $pythonPath = (Resolve-Path -LiteralPath $pythonCommand).Path
+                    } else {
+                        $pythonInfo = Get-Command $pythonCommand -ErrorAction SilentlyContinue
+                        if ($pythonInfo) {
+                            $pythonPath = $pythonInfo.Source
+                        }
                     }
-                    & $java.Source -version
+                    if (-not $pythonPath) {
+                        throw "Jenkins Agent 未找到 Python: $pythonCommand"
+                    }
+                    & $pythonPath --version
+                    if ($LASTEXITCODE -ne 0) {
+                        throw 'Python 不可用。'
+                    }
 
-                    $jmeter = $null
-                    $jmeterCommand = Get-Command jmeter.bat -ErrorAction SilentlyContinue
-                    if ($jmeterCommand) {
-                        $jmeter = $jmeterCommand.Source
+                    $javaInfo = Get-Command java -ErrorAction SilentlyContinue
+                    if (-not $javaInfo) {
+                        throw 'Jenkins Agent 未找到 Java；JMeter 运行必须安装 Java。'
                     }
-                    if (-not $jmeter) {
+                    & $javaInfo.Source -version
+                    if ($LASTEXITCODE -ne 0) {
+                        throw 'Java 不可用。'
+                    }
+
+                    $jmeterInput = $env:JMETER_CMD.Trim()
+                    if ([string]::IsNullOrWhiteSpace($jmeterInput)) {
+                        $jmeterInput = 'jmeter.bat'
+                    }
+
+                    $jmeterPath = $null
+                    if (Test-Path -LiteralPath $jmeterInput -PathType Leaf) {
+                        $jmeterPath = (Resolve-Path -LiteralPath $jmeterInput).Path
+                    } else {
+                        $jmeterInfo = Get-Command $jmeterInput -ErrorAction SilentlyContinue
+                        if ($jmeterInfo) {
+                            $jmeterPath = $jmeterInfo.Source
+                        }
+                    }
+
+                    if (-not $jmeterPath) {
                         $candidates = @(
                             'D:/apache-jmeter-5.6.3/bin/jmeter.bat',
                             'C:/apache-jmeter-5.6.3/bin/jmeter.bat',
                             'C:/tools/apache-jmeter-5.6.3/bin/jmeter.bat'
                         )
                         foreach ($candidate in $candidates) {
-                            if (Test-Path -LiteralPath $candidate) {
-                                $jmeter = $candidate
+                            if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                                $jmeterPath = (Resolve-Path -LiteralPath $candidate).Path
                                 break
                             }
                         }
                     }
-                    if (-not $jmeter) {
-                        throw 'Jenkins Agent 未找到 JMeter，请检查 JMeter 安装路径或 PATH。'
+
+                    if (-not $jmeterPath) {
+                        throw "Jenkins Agent 未找到 JMeter。当前配置: $jmeterInput"
                     }
-                    & $jmeter -v
-                    Write-Host "JMeter 路径: $jmeter"
-                    Write-Host '[OK] 工具检查通过'
+                    & $jmeterPath -v
+                    if ($LASTEXITCODE -ne 0) {
+                        throw 'JMeter 不可用。'
+                    }
+
+                    Write-Host "Python: $pythonPath"
+                    Write-Host "Java: $($javaInfo.Source)"
+                    Write-Host "JMeter: $jmeterPath"
+                    Write-Host '[OK] Python、Java、JMeter 工具检查通过'
                 '''
             }
         }
@@ -101,10 +221,14 @@
                     $project = Join-Path $env:WORKSPACE $env:PROJECT_DIR
                     $venv = Join-Path $project '.ci-venv'
                     $python = Join-Path $venv 'Scripts/python.exe'
+                    $pythonCommand = $env:PYTHON_CMD.Trim()
+                    if ([string]::IsNullOrWhiteSpace($pythonCommand)) {
+                        $pythonCommand = 'python'
+                    }
 
                     if (-not (Test-Path -LiteralPath $python)) {
                         Write-Host '创建 Jenkins 专用 Python 虚拟环境...'
-                        & (Get-Command python).Source -m venv $venv
+                        & $pythonCommand -m venv $venv
                         if ($LASTEXITCODE -ne 0) {
                             throw 'Python 虚拟环境创建失败。'
                         }
@@ -133,7 +257,9 @@
                         throw 'Playwright Chromium 安装失败。'
                     }
 
-                    Write-Host '[OK] Python、pytest 和 Playwright 环境准备完成'
+                    Write-Host "Python 虚拟环境: $venv"
+                    Write-Host "Playwright 浏览器目录: $browserPath"
+                    Write-Host '[OK] Python、pytest、Allure 和 Playwright 环境准备完成'
                 '''
             }
         }
@@ -149,15 +275,34 @@
                         (Join-Path $project 'automation/ui/reports'),
                         (Join-Path $project 'automation/ui/screenshots')
                     )
+
                     foreach ($path in $paths) {
                         if (Test-Path -LiteralPath $path) {
                             Remove-Item -LiteralPath $path -Recurse -Force
                         }
                     }
-                    New-Item -ItemType Directory -Force -Path (Join-Path $project 'reports/allure-results-api') | Out-Null
-                    New-Item -ItemType Directory -Force -Path (Join-Path $project 'reports/allure-results-ui') | Out-Null
-                    New-Item -ItemType Directory -Force -Path (Join-Path $project 'reports/jmeter') | Out-Null
-                    Write-Host '[OK] 旧报告和截图已清理'
+
+                    New-Item -ItemType Directory -Force -Path `
+                        (Join-Path $project 'reports/allure-results-api'), `
+                        (Join-Path $project 'reports/allure-results-ui'), `
+                        (Join-Path $project 'reports/jmeter'), `
+                        (Join-Path $project 'automation/ui/screenshots') | Out-Null
+
+                    @(
+                        "build.number=$env:BUILD_NUMBER"
+                        "portal.api=$env:PORTAL_API_BASE_URL"
+                        "admin.api=$env:ADMIN_API_BASE_URL"
+                        "portal.frontend=$env:PORTAL_FRONTEND_BASE_URL"
+                        "admin.frontend=$env:ADMIN_FRONTEND_BASE_URL"
+                        "run.api=$env:RUN_API"
+                        "run.ui=$env:RUN_UI"
+                        "run.performance=$env:RUN_PERFORMANCE"
+                        "performance.threads=$env:PERF_THREADS"
+                        "performance.ramp_up=$env:PERF_RAMP_UP"
+                        "performance.loops=$env:PERF_LOOPS"
+                    ) | Set-Content -Encoding utf8 -Path (Join-Path $project 'reports/ci-environment.properties')
+
+                    Write-Host '[OK] 旧报告、旧截图和旧 JMeter 结果已清理'
                 '''
             }
         }
@@ -167,18 +312,21 @@
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $checks = @(
-                        @{ Name = 'Mall portal API'; Url = 'http://127.0.0.1:8085/actuator/health' },
-                        @{ Name = 'Admin API'; Url = 'http://127.0.0.1:8082/actuator/health' },
-                        @{ Name = 'Mall frontend'; Url = 'http://127.0.0.1:8060/' },
-                        @{ Name = 'Admin frontend'; Url = 'http://127.0.0.1:8090/' }
+                        @{ Name = 'Mall portal API'; Url = "$env:PORTAL_API_BASE_URL/actuator/health" },
+                        @{ Name = 'Admin API'; Url = "$env:ADMIN_API_BASE_URL/actuator/health" },
+                        @{ Name = 'Mall frontend'; Url = "$env:PORTAL_FRONTEND_BASE_URL/" },
+                        @{ Name = 'Admin frontend'; Url = "$env:ADMIN_FRONTEND_BASE_URL/" }
                     )
 
                     foreach ($check in $checks) {
                         $passed = $false
                         $lastError = ''
-                        for ($attempt = 1; $attempt -le 6; $attempt++) {
+                        for ($attempt = 1; $attempt -le 12; $attempt++) {
                             try {
-                                $response = Invoke-WebRequest -Uri $check.Url -UseBasicParsing -TimeoutSec 15
+                                $response = Invoke-WebRequest `
+                                    -Uri $check.Url `
+                                    -UseBasicParsing `
+                                    -TimeoutSec 15
                                 if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) {
                                     Write-Host "[OK] $($check.Name): HTTP $($response.StatusCode)"
                                     $passed = $true
@@ -188,35 +336,48 @@
                             } catch {
                                 $lastError = $_.Exception.Message
                             }
+
                             Write-Host "[WAIT] $($check.Name) 第 $attempt 次检查失败，5 秒后重试..."
                             Start-Sleep -Seconds 5
                         }
+
                         if (-not $passed) {
                             throw "服务检查失败: $($check.Name) ($($check.Url)); $lastError"
                         }
                     }
-                    Write-Host '[OK] 前后端服务检查通过'
+
+                    Write-Host '[OK] 项目 2 四个服务均已可访问'
                 '''
             }
         }
 
         stage('API Tests') {
+            when {
+                expression { return params.RUN_API }
+            }
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $project = Join-Path $env:WORKSPACE $env:PROJECT_DIR
                     $python = Join-Path $project '.ci-venv/Scripts/python.exe'
                     $allureDir = Join-Path $project 'reports/allure-results-api'
+                    $junitFile = Join-Path $project 'reports/api-junit.xml'
                     New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
 
                     Push-Location (Join-Path $project 'automation/api')
                     try {
-                        & $python -m pytest -q --tb=short --alluredir="$allureDir"
+                        & $python -m pytest -q --tb=short `
+                            --alluredir="$allureDir" `
+                            --junitxml="$junitFile"
                         if ($LASTEXITCODE -ne 0) {
                             throw '接口自动化测试失败。'
                         }
                     } finally {
                         Pop-Location
+                    }
+
+                    if (-not (Test-Path -LiteralPath $junitFile)) {
+                        throw "接口 JUnit 报告未生成: $junitFile"
                     }
                     Write-Host '[OK] 接口自动化测试通过'
                 '''
@@ -224,24 +385,38 @@
         }
 
         stage('UI Tests') {
+            when {
+                expression { return params.RUN_UI }
+            }
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $project = Join-Path $env:WORKSPACE $env:PROJECT_DIR
                     $python = Join-Path $project '.ci-venv/Scripts/python.exe'
                     $allureDir = Join-Path $project 'reports/allure-results-ui'
+                    $junitFile = Join-Path $project 'reports/ui-junit.xml'
                     $browserPath = Join-Path $project '.playwright-browsers'
                     New-Item -ItemType Directory -Force -Path $allureDir | Out-Null
                     $env:PLAYWRIGHT_BROWSERS_PATH = $browserPath
 
                     Push-Location (Join-Path $project 'automation/ui')
                     try {
-                        & $python -m pytest -q --browser chromium --headless --tb=short --alluredir="$allureDir"
+                        # 不传 --headed，pytest-playwright 默认使用无头模式，
+                        # 适合 Jenkins 无桌面环境；--browser chromium 明确指定浏览器。
+                        & $python -m pytest -q `
+                            --browser chromium `
+                            --tb=short `
+                            --alluredir="$allureDir" `
+                            --junitxml="$junitFile"
                         if ($LASTEXITCODE -ne 0) {
                             throw 'UI 自动化测试失败。'
                         }
                     } finally {
                         Pop-Location
+                    }
+
+                    if (-not (Test-Path -LiteralPath $junitFile)) {
+                        throw "UI JUnit 报告未生成: $junitFile"
                     }
                     Write-Host '[OK] UI 自动化测试通过'
                 '''
@@ -249,6 +424,9 @@
         }
 
         stage('JMeter Performance Test') {
+            when {
+                expression { return params.RUN_PERFORMANCE }
+            }
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
@@ -256,32 +434,85 @@
                     $resultDir = Join-Path $project 'reports/jmeter'
                     $reportDir = Join-Path $resultDir 'mall_product_flow'
                     $jtl = Join-Path $resultDir 'mall_product_flow.jtl'
-                    $jmx = Join-Path $project 'automation/ui/performance/mall_product_flow.jmx'
+                    $sourceJmx = Join-Path $project 'automation/ui/performance/mall_product_flow.jmx'
+                    $ciJmx = Join-Path $resultDir 'mall_product_flow_ci.jmx'
 
+                    $jmeterInput = $env:JMETER_CMD.Trim()
                     $jmeter = $null
-                    $jmeterCommand = Get-Command jmeter.bat -ErrorAction SilentlyContinue
-                    if ($jmeterCommand) {
-                        $jmeter = $jmeterCommand.Source
+                    if (-not [string]::IsNullOrWhiteSpace($jmeterInput)) {
+                        if (Test-Path -LiteralPath $jmeterInput -PathType Leaf) {
+                            $jmeter = (Resolve-Path -LiteralPath $jmeterInput).Path
+                        } else {
+                            $jmeterInfo = Get-Command $jmeterInput -ErrorAction SilentlyContinue
+                            if ($jmeterInfo) {
+                                $jmeter = $jmeterInfo.Source
+                            }
+                        }
                     }
                     if (-not $jmeter) {
-                        $candidates = @(
+                        foreach ($candidate in @(
                             'D:/apache-jmeter-5.6.3/bin/jmeter.bat',
                             'C:/apache-jmeter-5.6.3/bin/jmeter.bat',
                             'C:/tools/apache-jmeter-5.6.3/bin/jmeter.bat'
-                        )
-                        foreach ($candidate in $candidates) {
-                            if (Test-Path -LiteralPath $candidate) {
-                                $jmeter = $candidate
+                        )) {
+                            if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                                $jmeter = (Resolve-Path -LiteralPath $candidate).Path
                                 break
                             }
                         }
                     }
                     if (-not $jmeter) {
-                        throw 'JMeter 路径解析失败。'
+                        throw "JMeter 路径解析失败。当前配置: $jmeterInput"
                     }
-                    if (-not (Test-Path -LiteralPath $jmx)) {
-                        throw "JMX 文件不存在: $jmx"
+                    if (-not (Test-Path -LiteralPath $sourceJmx)) {
+                        throw "JMX 文件不存在: $sourceJmx"
                     }
+
+                    [int]$threads = 0
+                    [int]$rampUp = 0
+                    [int]$loops = 0
+                    [double]$maxErrorRate = 0
+                    [int]$maxP95 = 0
+                    if (-not [int]::TryParse($env:PERF_THREADS, [ref]$threads) -or $threads -lt 1) {
+                        throw "PERF_THREADS 必须是大于 0 的整数: $env:PERF_THREADS"
+                    }
+                    if (-not [int]::TryParse($env:PERF_RAMP_UP, [ref]$rampUp) -or $rampUp -lt 0) {
+                        throw "PERF_RAMP_UP 必须是大于等于 0 的整数: $env:PERF_RAMP_UP"
+                    }
+                    if (-not [int]::TryParse($env:PERF_LOOPS, [ref]$loops) -or $loops -lt 1) {
+                        throw "PERF_LOOPS 必须是大于 0 的整数: $env:PERF_LOOPS"
+                    }
+                    if (-not [double]::TryParse($env:PERF_MAX_ERROR_RATE, [ref]$maxErrorRate) -or $maxErrorRate -lt 0) {
+                        throw "PERF_MAX_ERROR_RATE 必须是大于等于 0 的数字: $env:PERF_MAX_ERROR_RATE"
+                    }
+                    if (-not [int]::TryParse($env:PERF_MAX_P95_MS, [ref]$maxP95) -or $maxP95 -lt 0) {
+                        throw "PERF_MAX_P95_MS 必须是大于等于 0 的整数: $env:PERF_MAX_P95_MS"
+                    }
+
+                    $apiUri = [System.Uri]$env:PORTAL_API_BASE_URL
+                    $jmxText = Get-Content -Raw -Encoding utf8 -LiteralPath $sourceJmx
+                    # 复制并参数化 JMX，不修改 Git 中的原始脚本。
+                    $jmxText = $jmxText.Replace(
+                        '<intProp name="ThreadGroup.num_threads">10</intProp>',
+                        "<intProp name=`"ThreadGroup.num_threads`">$threads</intProp>"
+                    )
+                    $jmxText = $jmxText.Replace(
+                        '<intProp name="ThreadGroup.ramp_time">10</intProp>',
+                        "<intProp name=`"ThreadGroup.ramp_time`">$rampUp</intProp>"
+                    )
+                    $jmxText = $jmxText.Replace(
+                        '<stringProp name="LoopController.loops">5</stringProp>',
+                        "<stringProp name=`"LoopController.loops`">$loops</stringProp>"
+                    )
+                    $jmxText = $jmxText.Replace(
+                        '<stringProp name="HTTPSampler.domain">localhost</stringProp>',
+                        "<stringProp name=`"HTTPSampler.domain`">$($apiUri.Host)</stringProp>"
+                    )
+                    $jmxText = $jmxText.Replace(
+                        '<stringProp name="HTTPSampler.port">8085</stringProp>',
+                        "<stringProp name=`"HTTPSampler.port`">$($apiUri.Port)</stringProp>"
+                    )
+                    Set-Content -Encoding utf8 -LiteralPath $ciJmx -Value $jmxText
 
                     New-Item -ItemType Directory -Force -Path $resultDir | Out-Null
                     if (Test-Path -LiteralPath $reportDir) {
@@ -291,38 +522,60 @@
                         Remove-Item -LiteralPath $jtl -Force
                     }
 
+                    Write-Host "JMeter: $jmeter"
+                    Write-Host "线程数: $threads；Ramp-Up: $rampUp 秒；循环次数: $loops"
                     & $jmeter -n `
-                        -t $jmx `
+                        -t $ciJmx `
                         -l $jtl `
                         -e `
                         -o $reportDir `
-                        '-Jjmeter.save.saveservice.output_format=csv'
+                        '-Jjmeter.save.saveservice.output_format=csv' `
+                        '-Jjmeter.save.saveservice.print_field_names=true'
                     if ($LASTEXITCODE -ne 0) {
                         throw 'JMeter 性能测试执行失败。'
                     }
+
                     if (-not (Test-Path -LiteralPath $jtl)) {
                         throw "JMeter JTL 文件未生成: $jtl"
                     }
                     if (-not (Test-Path -LiteralPath (Join-Path $reportDir 'index.html'))) {
-                        throw 'JMeter HTML 报告未生成。'
+                        throw "JMeter HTML 报告未生成: $(Join-Path $reportDir 'index.html')"
                     }
 
                     $rows = @(Import-Csv -LiteralPath $jtl)
                     if ($rows.Count -eq 0) {
-                        throw 'JMeter 结果文件为空。'
+                        throw 'JMeter 结果文件为空，请检查 JMX 是否有请求或服务是否可访问。'
                     }
+
                     $failed = @($rows | Where-Object {
                         "$($_.success)".ToLowerInvariant() -ne 'true'
                     })
                     $errorRate = [math]::Round(($failed.Count / $rows.Count) * 100, 2)
+                    $elapsedValues = @(
+                        $rows |
+                            ForEach-Object { [int]$_.elapsed } |
+                            Sort-Object
+                    )
+                    $p95Index = [math]::Ceiling($elapsedValues.Count * 0.95) - 1
+                    if ($p95Index -lt 0) { $p95Index = 0 }
+                    $p95 = [int]$elapsedValues[$p95Index]
+
                     Write-Host "JMeter 总样本: $($rows.Count)"
                     Write-Host "JMeter 失败样本: $($failed.Count)"
                     Write-Host "JMeter 错误率: $errorRate%"
+                    Write-Host "JMeter P95: $p95 ms"
+
                     if ($failed.Count -gt 0) {
                         $failed | Select-Object -First 10 | Format-Table | Out-String | Write-Host
-                        throw 'JMeter 存在失败请求。'
                     }
-                    Write-Host '[OK] JMeter 性能测试通过'
+                    if ($errorRate -gt $maxErrorRate) {
+                        throw "JMeter 错误率 $errorRate% 超过阈值 $maxErrorRate%。"
+                    }
+                    if ($p95 -gt $maxP95) {
+                        throw "JMeter P95 $p95 ms 超过阈值 $maxP95 ms。"
+                    }
+
+                    Write-Host '[OK] JMeter 性能测试及质量门禁通过'
                 '''
             }
         }
@@ -331,36 +584,43 @@
     post {
         always {
             script {
-                // 归档原始结果、JMeter HTML 报告和 UI 截图。
+                // 即使测试失败，也保留日志、Allure 原始数据、JTL、HTML 报告和截图。
                 archiveArtifacts(
                     artifacts: 'ecommerce-test/reports/**/*,ecommerce-test/automation/ui/screenshots/**/*',
                     allowEmptyArchive: true,
                     fingerprint: true
                 )
 
-                // 需要安装 Allure Jenkins Plugin。
-                if (fileExists('ecommerce-test/reports/allure-results-api') || fileExists('ecommerce-test/reports/allure-results-ui')) {
+                // 需要 Jenkins 安装 Allure Jenkins Plugin，并配置 Allure Commandline。
+                def allureApi = 'ecommerce-test/reports/allure-results-api'
+                def allureUi = 'ecommerce-test/reports/allure-results-ui'
+                if (fileExists(allureApi) || fileExists(allureUi)) {
                     allure(
-                        includeProperties: false,
+                        includeProperties: true,
+                        reportBuildPolicy: 'ALWAYS',
                         jdk: '',
                         results: [
-                            [path: 'ecommerce-test/reports/allure-results-api'],
-                            [path: 'ecommerce-test/reports/allure-results-ui']
+                            [path: allureApi],
+                            [path: allureUi]
                         ]
                     )
                 }
 
-                // 需要安装 HTML Publisher Plugin。
-                if (fileExists('ecommerce-test/reports/jmeter/mall_product_flow/index.html')) {
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'ecommerce-test/reports/jmeter/mall_product_flow',
-                        reportFiles: 'index.html',
-                        reportName: 'JMeter Performance Report'
-                    ])
-                }
+                // 需要 Jenkins 安装 JUnit 插件；接口/UI阶段会各自产生一个 XML。
+                junit(
+                    allowEmptyResults: true,
+                    testResults: 'ecommerce-test/reports/*-junit.xml'
+                )
+
+                // 需要 Jenkins 安装 HTML Publisher Plugin。
+                publishHTML(target: [
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'ecommerce-test/reports/jmeter/mall_product_flow',
+                    reportFiles: 'index.html',
+                    reportName: 'JMeter Performance Report'
+                ])
             }
         }
     }
