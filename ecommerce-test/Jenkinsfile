@@ -576,8 +576,8 @@ pipeline {
                     if ($p95Index -lt 0) { $p95Index = 0 }
                     $p95 = [int]$elapsedValues[$p95Index]
 
-                    # 保留 JMeter 生成的原生 index.html 作为 Jenkins 主报告。
-                    # 同时生成 summary.html 作为不依赖 JavaScript 的备用摘要页。
+                    # JMeter 原生 Dashboard 依赖 JavaScript，Jenkins 默认 CSP 可能导致页面空白。
+                    # 使用纯静态摘要作为 Jenkins 主报告，原生 Dashboard 另存为 dashboard.html。
                     $summaryScript = Join-Path $project 'scripts/generate_jmeter_static_report.ps1'
                     & $summaryScript `
                         -JtlPath $jtl `
@@ -590,10 +590,10 @@ pipeline {
                         -MaxP95Ms $maxP95
 
                     if (-not (Test-Path -LiteralPath (Join-Path $reportDir 'index.html'))) {
-                        throw 'JMeter 原生 Dashboard 入口 index.html 不存在。'
+                        throw 'JMeter 静态摘要报告生成失败。'
                     }
-                    if (-not (Test-Path -LiteralPath (Join-Path $reportDir 'summary.html'))) {
-                        throw 'JMeter 备用静态摘要 summary.html 生成失败。'
+                    if (-not (Test-Path -LiteralPath (Join-Path $reportDir 'dashboard.html'))) {
+                        throw 'JMeter 原生 Dashboard dashboard.html 生成失败。'
                     }
 
                     Write-Host "JMeter 总样本: $($rows.Count)"

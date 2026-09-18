@@ -82,11 +82,13 @@ $p95GatePassed = $p95 -le $MaxP95Ms
 $qualityGatePassed = $errorGatePassed -and $p95GatePassed
 $qualityText = if ($qualityGatePassed) { "通过" } else { "未通过" }
 
-# JMeter 原生 Dashboard 始终保留为 index.html，供 Jenkins HTML Publisher 直接发布。
-# 另外生成 summary.html 作为不依赖 JavaScript 的备用报告，不覆盖原生入口。
+# 保存 JMeter 原生 Dashboard，并将其改名为 dashboard.html。
+# Jenkins HTML Publisher 的 index.html 使用纯静态摘要，避免 CSP 导致页面空白。
 $indexPath = Join-Path $ReportDir "index.html"
-$summaryPath = Join-Path $ReportDir "summary.html"
-if (-not (Test-Path -LiteralPath $indexPath -PathType Leaf)) {
+$dashboardPath = Join-Path $ReportDir "dashboard.html"
+if (Test-Path -LiteralPath $indexPath -PathType Leaf) {
+    Copy-Item -LiteralPath $indexPath -Destination $dashboardPath -Force
+} else {
     throw "JMeter 原生 Dashboard 不存在: $indexPath"
 }
 Copy-Item -LiteralPath $JtlPath -Destination (Join-Path $ReportDir "raw-results.jtl") -Force
@@ -193,7 +195,7 @@ $($failedRowsHtml.ToString())
 
   <h2>原始产物</h2>
   <ul>
-    <li><a href="index.html">JMeter 原生交互式 Dashboard</a></li>
+    <li><a href="dashboard.html">JMeter 原生交互式 Dashboard</a>（若 Jenkins 拦截 JavaScript，请下载报告后在本地打开）</li>
     <li><a href="statistics.json">JMeter statistics.json</a></li>
     <li><a href="raw-results.jtl">原始 JTL 结果</a></li>
   </ul>
@@ -202,11 +204,8 @@ $($failedRowsHtml.ToString())
 "@
 
 # 使用 UTF-8 无 BOM，避免 Jenkins/浏览器出现中文编码问题。
-[System.IO.File]::WriteAllText(
-    $summaryPath,
-    $html,
-    [System.Text.UTF8Encoding]::new($false)
-)
+$utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
+[System.IO.File]::WriteAllText($indexPath, $html, $utf8NoBom)
 
-Write-Host "[OK] 已生成 JMeter 备用静态摘要: $summaryPath"
+Write-Host "[OK] 已生成 Jenkins 可直接显示的 JMeter 静态摘要: $indexPath"
 Write-Host "[INFO] 总样本=$total, 失败=$failed, 错误率=$errorRate%, P95=$p95 ms"
